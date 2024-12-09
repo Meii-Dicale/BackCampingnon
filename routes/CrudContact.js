@@ -21,7 +21,7 @@ router.get ('/AllMessages', (req, res) => {
     })
 // route pour récupérer tout les nouveaux messages
 router.get ('/NouveauxMessages', (req, res) => {
-    const newMessages = "select * from contact WHERE idEtat = 1"
+    const newMessages = "select * from contact WHERE idEtatMessage = 1"
     bdd.query(newMessages, (err, result) => {
         if(err) throw err;
         res.json(result);
@@ -30,8 +30,8 @@ router.get ('/NouveauxMessages', (req, res) => {
 })
 // route pour récupérer tout les messages archivés 
 
-router.get ('/MessagesArchivés', (req, res) => {
-    const archivedMessages = "select * from contact WHERE idEtat = 2"
+router.get ('/MessagesArchives', (req, res) => {
+    const archivedMessages = "select * from contact WHERE idEtatMessage = 2"
     bdd.query(archivedMessages, (err, result) => {
         if(err) throw err;
         res.json(result);
@@ -40,7 +40,8 @@ router.get ('/MessagesArchivés', (req, res) => {
 
 // route pour créer un message 
 
-router.post ('/Messages', (req, res) => {
+router.post ('/EnvoiMessages', (req, res) => {
+    console.log("test")
     const postMessage = "insert into contact (nom, mail, message, idEtatMessage) values (?,?,?,1)"
     bdd.query(postMessage, [req.body.nom, req.body.mail, req.body.message], (err, result) => {
         if(err) throw err;
@@ -50,9 +51,9 @@ router.post ('/Messages', (req, res) => {
 
 // passer un message en archivé 
 
-router.post ('postArchive', (req, res) => {
-    const updateMessage = "UPDATE contact SET idEtatMessage = 2 WHERE id =?"
-    bdd.query(updateMessage, [req.body.id], (err, result) => {
+router.post ('/Archiver', (req, res) => {
+    const updateMessage = "UPDATE contact SET idEtatMessage = 2 WHERE idContact =?"
+    bdd.query(updateMessage, [req.body.idContact], (err, result) => {
         if(err) throw err;
         res.json({message: 'Message archivé avec succès'});
     })})
