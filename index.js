@@ -4,6 +4,7 @@ const routeUtilisateur = require("./routes/utilisateur");
 const CrudContact = require("./routes/CrudContact");
 const CrudReservation = require("./routes/CrudReservation");
 const crudEmplacement = require('./routes/crudEmplacement');
+const crudPromotion = require('./routes/CrudPromotion');
 
 app.use(express.json());
 
@@ -11,6 +12,7 @@ app.use("/api/utilisateur", routeUtilisateur);
 app.use('/api/emplacement', crudEmplacement);
 app.use("/api/contact", CrudContact);
 app.use("/api/reservations", CrudReservation);
+app.use("/api/promotions", crudPromotion);
 
 const PORT = 3001;
 
