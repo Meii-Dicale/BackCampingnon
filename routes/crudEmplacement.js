@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bdd = require('../config/bdd');
 
+
 // Route pour ajouter un emplacement
 router.post('/add', async (req, res) => {
   console.log('post /api/emplacement', req.body); // on log les données reçues de la requête POST

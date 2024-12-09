@@ -4,8 +4,29 @@ const bcrypt = require('bcrypt');
 const router = express.Router();
 const connexion = require("../config/bdd");
 
+////////////////////////////////////////////////////////////////////////
+// L'authentication//
+////////////////////////////////////////////////////////////////////////
+
+const authenticateToken = (req, res, next) => {
+    const token = req.header('Authorization')?.split(' ')[1];
+    console.log('token' +token);
+    if (!token) return res.status(401).json({ error: 'Token manquant' });
+
+    try {
+        const decoded = jwt.verify(token, SECRET_KEY);
+        req.user = decoded; // Stocke les données du token dans req.user
+        next();
+    } catch (err) {
+        res.status(403).json({ error: 'Token invalide' });
+        console.error(err);
+    }
+};
+
+////////////////////////////////////////////////////////////////////////
+
 // Récupération par son ID
-router.get("/:id", (req, res) => {
+router.get("/:id",authenticateToken, (req, res) => {
   const idUtilisateur = req.params.id;
 
   const query = "SELECT * FROM utilisateur WHERE idUtilisateur = ?";
@@ -25,7 +46,7 @@ router.get("/:id", (req, res) => {
 });
 
 // recuperation des utilisateurs
-    router.get('/', (req, res) => {
+    router.get('/AllInformationUtilisateur', authenticateToken,(req, res) => {
         const query = 'SELECT * FROM utilisateur';
         connexion.query(query, (error, results) => {
           if (error) {
@@ -35,18 +56,7 @@ router.get("/:id", (req, res) => {
           res.json(results);
         });
       });
-router.get("/", (req, res) => {
-  const query = "SELECT * FROM utilisateur";
-  connexion.query(query, (error, results) => {
-    if (error) {
-      console.error("Erreur lors de la récupération des utilisateurs:", error);
-      return res
-        .status(500)
-        .json({ message: "Erreur lors de la récupération des utilisateurs" });
-    }
-    res.json(results);
-  });
-});
+
 
 // Ajouter un utilisateur
 router.post("/AjoutUtilisateur", async (req, res) => {
@@ -115,7 +125,7 @@ router.delete("/utilisateur/:id", (req, res) => {
   });
 });
 
-router.put("/utilisateur/:id", (req, res) => {
+router.put("/utilisateur/:id", authenticateToken,(req, res) => {
   const { id } = req.params; // Récupérer l'ID de l'utilisateur à partir des paramètres de l'URL
   const {
     nom,
