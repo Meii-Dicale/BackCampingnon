@@ -6,24 +6,30 @@ const bdd = require('../config/bdd');
 router.post('/add', async (req, res) => {
   console.log('post /api/emplacement', req.body); // on log les données reçues de la requête POST
   try {
-    let valeurs = Object.values(req.body); // on récupère les valeurs du corps de la requête
-    valeurs = valeurs.map(
-      (valeur) => valeur.trim() // on trim les espaces en début et fin de chaque valeur
-    );
-    console.log(valeurs);
-    const userQuery =
+    const { numero, type, tarif, description } = req.body; // on récupère les données du corps de la requête
+
+    if (!numero || !type || !tarif || !description) {
+      return res.status(400).send('Tous les champs sont requis'); // renvoie une erreur 400 si tous les champs ne sont pas remplis
+    }
+    const valeurs = [
+      parseInt(numero),
+      type.trim(),
+      parseFloat(tarif),
+      description.trim(),
+    ]; // on vérifie que les elements envoyés soient dans les bon formats pour la requête SQL
+    const sqlQuery =
       'INSERT INTO emplacement (numero, type, tarif, description) VALUES (?,?,?,?)';
-    const response = await new Promise((resolve, reject) => {
-      bdd.query(userQuery, valeurs, (error, results) => {
-        if (error) {
-          return reject(error);
-        }
-        resolve(results);
+    bdd.query(sqlQuery, valeurs, (error, results) => {
+      if (error) {
+        console.error("erreur lors de la création de l'emplacement", error); // 'terrible désillusion!'
+        return res
+          .status(500)
+          .json({ message: "Erreur lors de la création de l'emplacement" });
+      }
+      res.status(201).send({
+        message: 'Emplacement créé avec succès',
+        idEmplacement: results.insertId,
       });
-    }); // exécution de la requête SQL
-    res.status(201).send({
-      message: 'Emplacement créé avec succès',
-      idEmplacement: response.insertId,
     });
   } catch (error) {
     console.error(
