@@ -1,10 +1,12 @@
 const express = require('express');
 const app = express();
-
+const crudEmplacement = require('./routes/crudEmplacement');
 
 
 
 app.use(express.json());
+
+app.use('/api/Emplacement', crudEmplacement);
 
 
 
