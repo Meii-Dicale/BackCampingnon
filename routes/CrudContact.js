@@ -56,3 +56,5 @@ router.post ('postArchive', (req, res) => {
         if(err) throw err;
         res.json({message: 'Message archivé avec succès'});
     })})
+
+module.exports = router

@@ -1,12 +1,13 @@
 const express = require('express');
 const app = express();
+const CrudContact = require('./routes/CrudContact');
 
 
 
 
 app.use(express.json());
 
-app.use('/api/contact', );
+app.use('/api/contact', CrudContact );
 
 
 
