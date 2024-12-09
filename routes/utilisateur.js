@@ -40,38 +40,45 @@ router.get("/", (req, res) => {
 
 // Ajouter un utilisateur
 router.post("/", (req, res) => {
-  const { nom, prenom, mail, mdp, role } = req.body;
-
-  // Vérification basique des champs requis
-  if (!nom || !prenom || !mail || !mdp || !role) {
-    return res.status(400).json({
-      message: "Les champs nom, prenom, mail, mdp et role sont obligatoires.",
-    });
-  }
-
-  // Requête SQL pour insérer l'utilisateur
-  const query = `
+    const { nom, prenom, mail, mdp, role } = req.body;
+  
+    // Vérification basique des champs requis
+    if (!nom || !prenom || !mail || !mdp || !role) {
+      return res.status(400).json({
+        message: "Les champs nom, prenom, mail, mdp et role sont obligatoires.",
+      });
+    }
+  
+    // Hacher le mot de passe avant de l'enregistrer
+    bcrypt.hash(mdp, 10, (err, hashedPassword) => {
+      if (err) {
+        console.error("Erreur lors du hachage du mot de passe:", err);
+        return res.status(500).json({ message: "Erreur lors de l'ajout de l'utilisateur." });
+      }
+  
+      // Requête SQL pour insérer l'utilisateur avec le mot de passe haché
+      const query = `
         INSERT INTO utilisateur (nom, prenom, mail, mdp, role)
         VALUES (?, ?, ?, ?, ?)
-    `;
-  const values = [nom, prenom, mail, mdp, role];
-
-  connexion.query(query, values, (error, results) => {
-    if (error) {
-      console.error("Erreur lors de l'ajout de l'utilisateur:", error);
-      return res
-        .status(500)
-        .json({ message: "Erreur lors de l'ajout de l'utilisateur." });
-    }
-
-    // Répondre avec un message de succès
-    res.status(201).json({
-      message: "Utilisateur ajouté avec succès.",
-      id: results.insertId, // Retourner l'ID généré pour l'utilisateur
+      `;
+      const values = [nom, prenom, mail, hashedPassword, role];
+  
+      connexion.query(query, values, (error, results) => {
+        if (error) {
+          console.error("Erreur lors de l'ajout de l'utilisateur:", error);
+          return res
+            .status(500)
+            .json({ message: "Erreur lors de l'ajout de l'utilisateur." });
+        }
+  
+        // Répondre avec un message de succès
+        res.status(201).json({
+          message: "Utilisateur ajouté avec succès.",
+          id: results.insertId, // Retourner l'ID généré pour l'utilisateur
+        });
+      });
     });
   });
-});
-
 // suppression utilisateur
 
 router.delete("/utilisateur/:id", (req, res) => {
@@ -100,41 +107,8 @@ router.delete("/utilisateur/:id", (req, res) => {
 });
 
 router.put("/utilisateur/:id", (req, res) => {
-  const { id } = req.params; // Récupérer l'ID de l'utilisateur à partir des paramètres de l'URL
-  const {
-    nom,
-    prenom,
-    rue,
-    codePostal,
-    ville,
-    pays,
-    tel,
-    mail,
-    dateNaissance,
-    mdp,
-    role,
-  } = req.body; // Récupérer les nouvelles valeurs depuis le corps de la requête
-
-  const query = `
-        UPDATE utilisateur 
-        SET 
-            nom = ?, 
-            prenom = ?, 
-            rue = ?, 
-            codePostal = ?, 
-            ville = ?, 
-            pays = ?, 
-            tel = ?, 
-            mail = ?, 
-            dateNaissance = ?, 
-            mdp = ?, 
-            role = ?
-        WHERE idUtilisateur = ?`; // La requête SQL pour mettre à jour les informations
-
-  // Exécution de la requête avec les nouvelles valeurs et l'ID
-  connexion.query(
-    query,
-    [
+    const { id } = req.params;
+    const {
       nom,
       prenom,
       rue,
@@ -146,26 +120,60 @@ router.put("/utilisateur/:id", (req, res) => {
       dateNaissance,
       mdp,
       role,
+    } = req.body;
+  
+    // Si un mot de passe est fourni, le hacher
+    const hashedPassword = mdp ? bcrypt.hashSync(mdp, 10) : undefined;
+  
+    const query = `
+      UPDATE utilisateur 
+      SET 
+        nom = ?, 
+        prenom = ?, 
+        rue = ?, 
+        codePostal = ?, 
+        ville = ?, 
+        pays = ?, 
+        tel = ?, 
+        mail = ?, 
+        dateNaissance = ?, 
+        ${mdp ? "mdp = ?," : ""} 
+        role = ?
+      WHERE idUtilisateur = ?
+    `;
+  
+    // Construire les valeurs à utiliser dans la requête SQL
+    const values = [
+      nom,
+      prenom,
+      rue,
+      codePostal,
+      ville,
+      pays,
+      tel,
+      mail,
+      dateNaissance,
+      ...(mdp ? [hashedPassword] : []), // Ajouter le mot de passe haché si fourni
+      role,
       id,
-    ],
-    (error, results) => {
+    ];
+  
+    connexion.query(query, values, (error, results) => {
       if (error) {
         console.error("Erreur lors de la mise à jour de l'utilisateur:", error);
         return res
           .status(500)
           .json({ message: "Erreur lors de la mise à jour de l'utilisateur" });
       }
-
+  
       // Vérifier si la mise à jour a affecté des lignes
       if (results.affectedRows > 0) {
-        return res
-          .status(200)
-          .json({ message: "Utilisateur mis à jour avec succès" });
+        return res.status(200).json({ message: "Utilisateur mis à jour avec succès" });
       } else {
         return res.status(404).json({ message: "Utilisateur non trouvé" });
       }
-    }
-  );
-});
+    });
+  });
 
+  
 module.exports = router;
