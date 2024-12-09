@@ -26,7 +26,7 @@ router.get("/:id", (req, res) => {
 // recuperation des utilisateurs
 router.get("/", (req, res) => {
   const query = "SELECT * FROM utilisateur";
-  bdd.query(query, (error, results) => {
+  connexion.query(query, (error, results) => {
     if (error) {
       console.error("Erreur lors de la récupération des utilisateurs:", error);
       return res
@@ -43,11 +43,9 @@ router.post("/", (req, res) => {
 
   // Vérification basique des champs requis
   if (!nom || !prenom || !mail || !mdp || !role) {
-    return res
-      .status(400)
-      .json({
-        message: "Les champs nom, prenom, mail, mdp et role sont obligatoires.",
-      });
+    return res.status(400).json({
+      message: "Les champs nom, prenom, mail, mdp et role sont obligatoires.",
+    });
   }
 
   // Requête SQL pour insérer l'utilisateur
