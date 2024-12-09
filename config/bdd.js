@@ -6,7 +6,7 @@ dotenv.config();
 const connection = mysql.createConnection({
     host: "localhost", 
     user: "root",
-    database: "campingon",
+    database: "campingnon",
 });
 
 // Connexion à la base de données
