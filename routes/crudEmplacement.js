@@ -2,8 +2,29 @@ const express = require('express');
 const router = express.Router();
 const bdd = require('../config/bdd');
 
+////////////////////////////////////////////////////////////////////////
+// L'authentication//
+////////////////////////////////////////////////////////////////////////
+
+const authenticateToken = (req, res, next) => {
+  const token = req.header('Authorization')?.split(' ')[1];
+  console.log('token' +token);
+  if (!token) return res.status(401).json({ error: 'Token manquant' });
+
+  try {
+      const decoded = jwt.verify(token, SECRET_KEY);
+      req.user = decoded; // Stocke les données du token dans req.user
+      next();
+  } catch (err) {
+      res.status(403).json({ error: 'Token invalide' });
+      console.error(err);
+  }
+};
+
+////////////////////////////////////////////////////////////////////////
+
 // Route pour ajouter un emplacement
-router.post('/add', (req, res) => {
+router.post('/add', authenticateToken, (req, res) => {
   console.log('post /api/emplacement', req.body); // on log les données reçues de la requête POST
   const { numero, type, tarif, description } = req.body; // on récupère les données du corps de la requête
   if (!numero || !type || !tarif || !description) {
@@ -31,7 +52,7 @@ router.post('/add', (req, res) => {
 });
 
 // Route pour la mise à jour d'un emplacement (patch)
-router.patch('/:id', (req, res) => {
+router.patch('/:id', authenticateToken,(req, res) => {
   console.log('patch /api/emplacement/:id', req.body);
   const id = req.params.id; // on récupère l'id(Emplacement) de l'emplacement dans l'URL
   const champs = Object.keys(req.body) // on récupère les id du corps de la requête
@@ -56,7 +77,7 @@ router.patch('/:id', (req, res) => {
 });
 
 // Route pour la suppression d'un emplacement (delete)
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
   console.log('DELETE /api/emplacement/:id'); // log de la requête sur la console
   const { id } = req.params; // on récupère l'id(Emplacement) de l'emplacement dans l'URL
   const sqlQuery = 'DELETE FROM emplacement WHERE idEmplacement =?'; // on crée la requête SQL
