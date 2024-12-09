@@ -32,6 +32,8 @@ const authenticateToken = (req, res, next) => {
 // |             2 | Archive |
 // +---------------+---------+
 
+////////////////////////////////////////////////////////////////////////
+
 
 // Route pour récuéperer tout les messages 
 router.get ('/AllMessages', authenticateToken, (req, res) => {
