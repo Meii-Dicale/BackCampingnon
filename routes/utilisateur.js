@@ -49,8 +49,16 @@ router.get("/", (req, res) => {
 });
 
 // Ajouter un utilisateur
-router.post("/", (req, res) => {
-  const { nom, prenom, mail, mdp, role } = req.body;
+router.post("/AjoutUtilisateur", async (req, res) => {
+  const { nom, prenom, mail, mdp, role, rue, codePostal, ville, pays, tel, dateNaissance } = req.body;
+  const securedPassword = await bcrypt.hash(mdp, 10)
+  // on vérifi d'abord si le mail existe déjà 
+  const queryExisteMail = "SELECT * FROM utilisateur WHERE mail =?";
+  connexion.query(queryExisteMail, [mail], (err, resultExisteMail) => {
+    if (err) throw err;
+    if (resultExisteMail.length > 0) {
+      return res.status(400).json({ message: "Cet email existe déjà." });
+    } else {
 
   // Vérification basique des champs requis
   if (!nom || !prenom || !mail || !mdp || !role) {
@@ -61,10 +69,10 @@ router.post("/", (req, res) => {
 
   // Requête SQL pour insérer l'utilisateur
   const query = `
-        INSERT INTO utilisateur (nom, prenom, mail, mdp, role)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO utilisateur (nom, prenom, mail, mdp, role, rue, codePostal, ville, pays, tel, dateNaissance)
+        VALUES (?, ?, ?, ?, ?, ?,?,?,?,?,?)
     `;
-  const values = [nom, prenom, mail, mdp, role];
+  const values = [nom, prenom, mail, securedPassword, role, rue, codePostal,ville,pays,tel,dateNaissance];
 
   connexion.query(query, values, (error, results) => {
     if (error) {
@@ -78,9 +86,7 @@ router.post("/", (req, res) => {
     res.status(201).json({
       message: "Utilisateur ajouté avec succès.",
       id: results.insertId, // Retourner l'ID généré pour l'utilisateur
-    });
-  });
-});
+    })})}})});
 
 // suppression utilisateur
 
