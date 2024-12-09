@@ -6,6 +6,8 @@ const app = express();
 
 app.use(express.json());
 
+app.use('/api/contact', );
+
 
 
 app.listen(3001), () => {
