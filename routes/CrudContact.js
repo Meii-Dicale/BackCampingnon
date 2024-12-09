@@ -47,3 +47,12 @@ router.post ('/Messages', (req, res) => {
         res.json({message: 'Message envoyé avec succès'});
 
     })})
+
+// passer un message en archivé 
+
+router.post ('postArchive', (req, res) => {
+    const updateMessage = "UPDATE contact SET idEtatMessage = 2 WHERE id =?"
+    bdd.query(updateMessage, [req.body.id], (err, result) => {
+        if(err) throw err;
+        res.json({message: 'Message archivé avec succès'});
+    })})
