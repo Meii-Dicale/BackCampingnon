@@ -1,5 +1,4 @@
 const express = require('express');
-
 const router = express.Router();
 const connexion = require('../config/bdd')
 
@@ -20,15 +19,10 @@ router.get('/:id', (req, res) => {
     });
 });
 
-
-
-
-
-
 // recuperation des utilisateurs
     router.get('/', (req, res) => {
         const query = 'SELECT * FROM utilisateur';
-        bdd.query(query, (error, results) => {
+        connexion.query(query, (error, results) => {
           if (error) {
             console.error('Erreur lors de la récupération des utilisateurs:', error);
             return res.status(500).json({ message: 'Erreur lors de la récupération des utilisateurs' });
@@ -126,6 +120,8 @@ router.put('/utilisateur/:id', (req, res) => {
         }
     });
 });
+
+
 
 
 module.exports = router;
