@@ -47,7 +47,7 @@ router.get ('/AllMessages', authenticateToken, (req, res) => {
     })
     })
 // route pour récupérer tout les nouveaux messages
-router.get ('/NouveauxMessages',authenticateToken, (req, res) => {
+router.get ('/NouveauxMessages', (req, res) => {
     const newMessages = "select * from contact WHERE idEtatMessage = 1"
     bdd.query(newMessages, (err, result) => {
         if(err) throw err;
