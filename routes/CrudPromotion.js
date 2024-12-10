@@ -67,9 +67,9 @@ router.get('/parEmplacement/:idEmplacement?', (req, res) => {
 });
 
 // récupérer une promo d'après son id
-router.get('/:idPromo', (req, res) => {
+router.get('/:idPromotion', (req, res) => {
   const sqlQuery = 'SELECT * FROM promotion WHERE idPromotion =?'; // requête SQL
-  const id = req.params.idPromo; // valeur du paramètre
+  const id = req.params.idPromotion; // valeur du paramètre
   bdd.query(sqlQuery, id, (error, results) => {
     if (error) {
       console.error('Erreur lors de la récupération de la promotion :', id);
@@ -103,7 +103,47 @@ router.post('/add', (req, res) => {
   });
 });
 // modifier une promo
-router.patch('/:idPromo', (req, res) => {});
+router.patch('/:idPromotion', (req, res) => {
+  console.log('patch /api/promotions/:idPromo'); // log de la requête sur la console
+  const id = req.params.idPromotion; // on récupère l'id dans l'url
+  const champs = Object.keys(req.body) // on récupère les noms de valeurs à modifier de la requête
+    .map((champ) => `${champ}=?`) // on récupère les noms qu'on 'variabilise' en listant par un mapping
+    .join(', '); // on les sépare par une virgule pour avoir le format de la requete SQL
+  let valeurs = Object.values(req.body); // on récupère les valeurs du corps de la requête
+  valeurs.push(id); // on ajoute l'id(Emplacement) à la fin de la liste des valeurs
+  const sqlQuery = `UPDATE promotion SET ${champs} WHERE idPromotion =?`; // requête SQL
+  bdd.query(sqlQuery, valeurs, (error, results) => {
+    if (error) {
+      console.error(error);
+      return res
+        .status(500)
+        .json({ message: 'Erreur lors de la modification de la promotion' });
+    }
+    if (results.affectedRows === 0) {
+      // si aucun enregistrement n'a été modifié on remonte une erreur 404 'non trouvé'
+      return res.status(404).send('promo non trouvée');
+    }
+    res.status(200).send({ message: 'Promo modifiée avec succès.' });
+  });
+});
 // supprimer une promo
-router.delete('/:idPromo', (req, res) => {});
+router.delete('/:idPromotion', (req, res) => {
+  console.log('DELETE /api/promotions/:idPromotion'); // log de la requête sur la console
+  const id = req.params.idPromotion; // on récupère l'id dans l'url
+  sqlQuery = 'DELETE FROM promotion WHERE idPromotion =?'; // requête SQL
+  bdd.query(sqlQuery, id, (error, results) => {
+    if (error) {
+      console.error(error);
+      return res
+        .status(500)
+        .json({ message: 'echec de suppression de la promotion' });
+    }
+    if (results.affectedRows === 0) {
+      // si aucune promo n'a été supprimée on remonte une erreur 404 'non trouvée'
+      return res.status(404).send('promotion non trouvée !');
+    }
+    res.status(200).send({ message: 'Promotion supprimée avec succès.' }); // si tout s'est bien passé on renvoi une confirmation 200 avec un message de confirmation
+  });
+});
+
 module.exports = router;
