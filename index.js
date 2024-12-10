@@ -6,6 +6,14 @@ const CrudReservation = require("./routes/CrudReservation");
 const crudEmplacement = require('./routes/crudEmplacement');
 const loginroute = require("./routes/Login");
 const CrudService = require('./routes/CrudServices');
+const cors = require('cors');
+
+
+app.use(cors({
+    origin: 'http://localhost:5173', // Autorise uniquement cette origine
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Liste des méthodes autorisées
+    allowedHeaders: ['Content-Type', 'Authorization'], // Liste des en-têtes autorisés
+  }));
 
 app.use(express.json());
 
