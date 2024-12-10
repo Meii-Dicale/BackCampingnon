@@ -3,6 +3,9 @@ const bcrypt = require('bcrypt');
 const router = express.Router();
 const bdd = require("../config/bdd");
 const jwt = require("jsonwebtoken");
+const dotenv = require('dotenv');
+dotenv.config(); 
+const SECRET_KEY = process.env.SECRET_KEY ;
 
 
 
@@ -37,14 +40,13 @@ router.post('/loginUser', async (req, res) => {
                     id: user.idUser,
                     nom: user.nom,
                     prenom: user.prenom,
-                    mail: user.mail,
                     role: user.role,
-                    dateNaissance: user.dateNaissance,
+                   
                     
                 };
 
                 // Générer le JWT
-                const token = jwt.sign(payload, 'SECRET_KEY', { expiresIn: '2h' });
+                const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '2h' });
 
                 // Répondre avec le token JWT
                 return res.status(200).json({ message: "Connexion réussie", token });

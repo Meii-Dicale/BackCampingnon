@@ -5,6 +5,7 @@ const CrudContact = require("./routes/CrudContact");
 const CrudReservation = require("./routes/CrudReservation");
 const crudEmplacement = require('./routes/crudEmplacement');
 const loginroute = require("./routes/Login");
+const CrudService = require('./routes/CrudServices');
 
 app.use(express.json());
 
@@ -13,6 +14,7 @@ app.use('/api/emplacement', crudEmplacement);
 app.use("/api/contact", CrudContact);
 app.use("/api/reservations", CrudReservation);
 app.use("/api/login" , loginroute);
+app.use("/api/services", CrudService);
 
 const PORT = 3001;
 
