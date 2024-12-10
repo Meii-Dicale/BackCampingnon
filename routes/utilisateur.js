@@ -3,6 +3,9 @@ const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
 const router = express.Router();
 const connexion = require("../config/bdd");
+const dotenv = require('dotenv');
+dotenv.config(); 
+const SECRET_KEY = process.env.SECRET_KEY ;
 
 ////////////////////////////////////////////////////////////////////////
 // L'authentication//

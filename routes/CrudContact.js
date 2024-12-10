@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const bdd = require('../config/bdd');
 const jwt = require("jsonwebtoken");
+const dotenv = require('dotenv');
+dotenv.config(); 
+const SECRET_KEY = process.env.SECRET_KEY ;
 
 ////////////////////////////////////////////////////////////////////////
 // L'authentication//
@@ -13,7 +16,7 @@ const authenticateToken = (req, res, next) => {
     if (!token) return res.status(401).json({ error: 'Token manquant' });
 
     try {
-        const decoded = jwt.verify(token, 'SECRET_KEY');
+        const decoded = jwt.verify(token, SECRET_KEY);
         req.user = decoded; // Stocke les données du token dans req.user
         next();
     } catch (err) {
