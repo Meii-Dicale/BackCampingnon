@@ -5,7 +5,7 @@ const CrudContact = require("./routes/CrudContact");
 const CrudReservation = require("./routes/CrudReservation");
 const crudEmplacement = require('./routes/crudEmplacement');
 const crudPromotion = require('./routes/CrudPromotion');
-=======
+
 const loginroute = require("./routes/Login");
 const CrudService = require('./routes/CrudServices');
 const cors = require('cors');
@@ -24,7 +24,7 @@ app.use('/api/emplacement', crudEmplacement);
 app.use("/api/contact", CrudContact);
 app.use("/api/reservations", CrudReservation);
 app.use("/api/promotions", crudPromotion);
-=======
+
 app.use("/api/login" , loginroute);
 app.use("/api/services", CrudService);
 
