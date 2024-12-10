@@ -5,6 +5,17 @@ const CrudContact = require("./routes/CrudContact");
 const CrudReservation = require("./routes/CrudReservation");
 const crudEmplacement = require('./routes/crudEmplacement');
 const crudPromotion = require('./routes/CrudPromotion');
+=======
+const loginroute = require("./routes/Login");
+const CrudService = require('./routes/CrudServices');
+const cors = require('cors');
+
+
+app.use(cors({
+    origin: 'http://localhost:5173', // Autorise uniquement cette origine
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Liste des méthodes autorisées
+    allowedHeaders: ['Content-Type', 'Authorization'], // Liste des en-têtes autorisés
+  }));
 
 app.use(express.json());
 
@@ -13,6 +24,9 @@ app.use('/api/emplacement', crudEmplacement);
 app.use("/api/contact", CrudContact);
 app.use("/api/reservations", CrudReservation);
 app.use("/api/promotions", crudPromotion);
+=======
+app.use("/api/login" , loginroute);
+app.use("/api/services", CrudService);
 
 const PORT = 3001;
 

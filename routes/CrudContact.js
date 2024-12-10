@@ -1,6 +1,31 @@
 const express = require('express');
 const router = express.Router();
 const bdd = require('../config/bdd');
+const jwt = require("jsonwebtoken");
+const dotenv = require('dotenv');
+dotenv.config(); 
+const SECRET_KEY = process.env.SECRET_KEY ;
+
+////////////////////////////////////////////////////////////////////////
+// L'authentication//
+////////////////////////////////////////////////////////////////////////
+
+const authenticateToken = (req, res, next) => {
+    const token = req.header('Authorization')?.split(' ')[1];
+    console.log('token' +token);
+    if (!token) return res.status(401).json({ error: 'Token manquant' });
+
+    try {
+        const decoded = jwt.verify(token, SECRET_KEY);
+        req.user = decoded; // Stocke les données du token dans req.user
+        next();
+    } catch (err) {
+        res.status(403).json({ error: 'Token invalide' });
+        console.error(err);
+    }
+};
+
+////////////////////////////////////////////////////////////////////////
 
 
 // +---------------+---------+
@@ -10,9 +35,11 @@ const bdd = require('../config/bdd');
 // |             2 | Archive |
 // +---------------+---------+
 
+////////////////////////////////////////////////////////////////////////
+
 
 // Route pour récuéperer tout les messages 
-router.get ('/AllMessages', (req, res) => {
+router.get ('/AllMessages', authenticateToken, (req, res) => {
     const allMessages = "select * from contact"
     bdd.query(allMessages, (err, result) => {
         if(err) throw err;
@@ -30,7 +57,7 @@ router.get ('/NouveauxMessages', (req, res) => {
 })
 // route pour récupérer tout les messages archivés 
 
-router.get ('/MessagesArchives', (req, res) => {
+router.get ('/MessagesArchives',authenticateToken, (req, res) => {
     const archivedMessages = "select * from contact WHERE idEtatMessage = 2"
     bdd.query(archivedMessages, (err, result) => {
         if(err) throw err;
@@ -51,7 +78,7 @@ router.post ('/EnvoiMessages', (req, res) => {
 
 // passer un message en archivé 
 
-router.post ('/Archiver', (req, res) => {
+router.post ('/Archiver',authenticateToken,(req, res) => {
     const updateMessage = "UPDATE contact SET idEtatMessage = 2 WHERE idContact =?"
     bdd.query(updateMessage, [req.body.idContact], (err, result) => {
         if(err) throw err;
