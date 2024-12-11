@@ -13,9 +13,16 @@ const cors = require('cors');
 
 app.use(cors({
     origin: 'http://localhost:5173', // Autorise uniquement cette origine
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Liste des méthodes autorisées
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], // Liste des méthodes autorisées
     allowedHeaders: ['Content-Type', 'Authorization'], // Liste des en-têtes autorisés
+
   }));
+
+app.options('*', cors({ 
+  origin: 'http://localhost:5173', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], 
+  allowedHeaders: ['Content-Type', 'Authorization'], 
+}));
 
 app.use(express.json());
 
