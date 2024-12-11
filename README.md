@@ -95,3 +95,52 @@ CREATE TABLE serviceReservation (
 );
 
 ALTER TABLE  service ADD COLUMN stock int null;
+
+
+
+-- Insertion de données de test 
+
+-- Table etatMessage
+INSERT INTO etatMessage (libelle) VALUES ('Nouveaux'), ('Archivé');
+
+-- Table contact
+INSERT INTO contact (nom, mail, message, idEtatMessage) VALUES 
+('Jean Dupont', 'jean.dupont@example.com', 'Bonjour, je voudrais des informations sur le camping.', 1),
+('Marie Curie', 'marie.curie@example.com', 'Je souhaite réserver un emplacement.', 2);
+
+-- Table Utilisateur
+INSERT INTO Utilisateur (nom, prenom, rue, codePostal, ville, pays, tel, mail, dateNaissance, mdp, role) VALUES 
+('Dupont', 'Jean', '123 Rue Principale', 75001, 'Paris', 'France', '0123456789', 'jean.dupont@example.com', '1980-05-15', 'mdp1234', 'client'),
+('Curie', 'Marie', '456 Rue de la Paix', 69002, 'Lyon', 'France', '0987654321', 'marie.curie@example.com', '1975-11-07', 'mdp5678', 'client');
+
+
+
+-- Table emplacement
+INSERT INTO emplacement (numero, type, tarif, description) VALUES 
+(1, 'Tente', 15.50, 'Emplacement pour tente, ombragé avec accès à l\'électricité.'),
+(2, 'Caravane', 25.00, 'Emplacement pour caravane avec branchements complets.'),
+(3, 'Mobil-home', 50.00, 'Mobil-home tout équipé pour 4 personnes.');
+
+-- Table service
+INSERT INTO service (libelle, tarif) VALUES 
+('Accès piscine', 5.00),
+('Wi-Fi', 2.50),
+('Location vélo', 10.00);
+
+-- Table serviceAssocie
+INSERT INTO serviceAssocie (idEmplacement, idService) VALUES 
+(1, 1), (1, 2), (2, 3);
+
+-- Table promotion
+INSERT INTO promotion (idService, idEmplacement, typePromo, contrainte) VALUES 
+(NULL, 1, 'Réduction', 10),
+(1, NULL, 'Offre spéciale Wi-Fi', 2);
+
+-- Table reservation
+INSERT INTO reservation (idUtilisateur, idEmplacement, idPromo, dateEntree, dateSortie) VALUES 
+(1, 1, 1, '2024-12-15', '2024-12-20'),
+(2, 2, NULL, '2024-12-18', '2024-12-25');
+
+-- Table serviceReservation
+INSERT INTO serviceReservation (idReservation, idService) VALUES 
+(1, 1), (1, 2), (2, 3);
