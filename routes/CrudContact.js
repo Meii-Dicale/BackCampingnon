@@ -67,7 +67,7 @@ router.get ('/MessagesArchives',authenticateToken, (req, res) => {
 
 // route pour créer un message 
 
-router.post ('/EnvoiMessages', (req, res) => {
+router.post ('/EnvoiMessages', authenticateToken, (req, res) => {
     console.log("test")
     const postMessage = "insert into contact (nom, mail, message, idEtatMessage) values (?,?,?,1)"
     bdd.query(postMessage, [req.body.nom, req.body.mail, req.body.message], (err, result) => {
@@ -78,9 +78,10 @@ router.post ('/EnvoiMessages', (req, res) => {
 
 // passer un message en archivé 
 
-router.post ('/Archiver',authenticateToken,(req, res) => {
+router.post ('/Archiver', authenticateToken, (req, res) => {
     const updateMessage = "UPDATE contact SET idEtatMessage = 2 WHERE idContact =?"
     bdd.query(updateMessage, [req.body.idContact], (err, result) => {
+        console.log(req.body.idContact)
         if(err) throw err;
         res.json({message: 'Message archivé avec succès'});
     })})

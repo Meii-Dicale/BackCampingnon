@@ -63,77 +63,56 @@ router.get('/AllInformationUtilisateur', authenticateToken, (req, res) => {
 });
 
 // Ajouter un utilisateur
-router.post('/AjoutUtilisateur', async (req, res) => {
-  const {
-    nom,
-    prenom,
-    mail,
-    mdp,
-    role,
-    rue,
-    codePostal,
-    ville,
-    pays,
-    tel,
-    dateNaissance,
-  } = req.body;
-  const securedPassword = await bcrypt.hash(mdp, 10);
-  // on vérifi d'abord si le mail existe déjà
-  const queryExisteMail = 'SELECT * FROM utilisateur WHERE mail =?';
-  connexion.query(queryExisteMail, [mail], (err, resultExisteMail) => {
-    if (err) throw err;
-    if (resultExisteMail.length > 0) {
-      return res.status(400).json({ message: 'Cet email existe déjà.' });
-    } else {
-      // Vérification basique des champs requis
-      if (!nom || !prenom || !mail || !mdp || !role) {
-        return res.status(400).json({
-          message:
-            'Les champs nom, prenom, mail, mdp et role sont obligatoires.',
-        });
-      }
+router.post("/AjoutUtilisateur", async (req, res) => {
+    const { nom, prenom, mail, mdp, role, rue, codePostal, ville, pays, tel, dateNaissance } = req.body;
+    console.log ( nom, prenom, mail, mdp, role, rue, codePostal, ville)
+    const securedPassword = await bcrypt.hash(mdp, 10)
+    // on vérifi d'abord si le mail existe déjà 
+    const queryExisteMail = "SELECT * FROM utilisateur WHERE mail =?";
+    connexion.query(queryExisteMail, [mail], (err, resultExisteMail) => {
+        if (err) throw err;
+        if (resultExisteMail.length > 0) {
+            return res.status(400).json({ message: "Cet email existe déjà." });
+        } else {
 
-      // Requête SQL pour insérer l'utilisateur
-      const query = `
+            // Vérification basique des champs requis
+            if (!nom || !prenom || !mail || !mdp || !role) {
+                return res.status(400).json({
+                    message: "Les champs nom, prenom, mail, mdp et role sont obligatoires.",
+                });
+            }
+
+            // Requête SQL pour insérer l'utilisateur
+            const query = `
         INSERT INTO utilisateur (nom, prenom, mail, mdp, role, rue, codePostal, ville, pays, tel, dateNaissance)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
-      const values = [
-        nom,
-        prenom,
-        mail,
-        securedPassword,
-        role,
-        rue,
-        codePostal,
-        ville,
-        pays,
-        tel,
-        dateNaissance,
-      ];
+            const values = [nom, prenom, mail, securedPassword, role, rue, codePostal, ville, pays, tel, dateNaissance];
 
-      connexion.query(query, values, (error, results) => {
-        if (error) {
-          console.error("Erreur lors de l'ajout de l'utilisateur:", error);
-          return res
-            .status(500)
-            .json({ message: "Erreur lors de l'ajout de l'utilisateur." });
+            connexion.query(query, values, (error, results) => {
+                if (error) {
+                    console.error("Erreur lors de l'ajout de l'utilisateur:", error);
+                    return res
+                        .status(500)
+                        .json({ message: "Erreur lors de l'ajout de l'utilisateur." });
+                }
+
+                // Répondre avec un message de succès
+                res.status(201).json({
+                    message: "Utilisateur ajouté avec succès.",
+                    id: results.insertId, // Retourner l'ID généré pour l'utilisateur
+                })
+            })
         }
-
-        // Répondre avec un message de succès
-        res.status(201).json({
-          message: 'Utilisateur ajouté avec succès.',
-          id: results.insertId, // Retourner l'ID généré pour l'utilisateur
-        });
-      });
-    }
-  });
+    })
 });
 
 // suppression utilisateur
 
-router.delete('/utilisateur/:id', (req, res) => {
-  const { id } = req.params; // Récupérer l'ID de l'utilisateur à partir des paramètres de l'URL
+
+router.delete("/utilisateur/:id", authenticateToken,(req, res) => {
+    const { id } = req.params; // Récupérer l'ID de l'utilisateur à partir des paramètres de l'URL
+
 
   const query = 'DELETE FROM utilisateur WHERE idUtilisateur = ?'; // La requête SQL
 

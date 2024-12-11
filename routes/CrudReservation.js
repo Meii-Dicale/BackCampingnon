@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
 const router = express.Router();
-const connexion = require("../config/bdd");
+const bdd = require("../config/bdd");
 const dotenv = require('dotenv');
 dotenv.config(); 
 const SECRET_KEY = process.env.SECRET_KEY ;
@@ -41,8 +41,8 @@ router.get("/AllReservations", authenticateToken, (req,res) => {
 // Modifier une réservation 
 
 router.put("/UpdateReservation", authenticateToken, (req,res) => {
-    const updateReservation = "UPDATE reservation SET dateEntree =?, dateSortie =?,  idEmplacement =?, idPromotion =? WHERE idReservation =?"
-    bdd.query(updateReservation, [req.body.dateEntree, req.body.dateSortie, req.body.idEmplacement, req.body.idPromotion, req.body.idReservation], (err, result) => {
+    const updateReservation = "UPDATE reservation SET dateEntree =?, dateSortie =? WHERE idReservation =?"
+    bdd.query(updateReservation, [req.body.dateEntree, req.body.dateSortie, req.body.idReservation], (err, result) => {
         if(err) throw err;
         res.json({message: 'Réservation modifiée avec succès'});
     })
@@ -101,7 +101,7 @@ router.delete("/DeleteServiceReservation", authenticateToken, (req,res) => {
 
 // Récupérer les promotions en cours
 
-router.get("/PromotionsEnCours",  (req,res) => {
+router.get("/PromotionsEnCours", authenticateToken, (req,res) => {
     const promotionsEnCours = "SELECT * FROM promotion"
     bdd.query(promotionsEnCours, (err, result) => {
         if(err) throw err;
@@ -111,7 +111,7 @@ router.get("/PromotionsEnCours",  (req,res) => {
 
 // Récupérer les promotions associées à une réservation
 
-router.get("/PromotionsReservation/:id", (req,res) => {
+router.get("/PromotionsReservation/:id",authenticateToken,(req,res) => {
     const promotionsReservation = "SELECT promotion.typePromo, promotion.contrainte FROM reservation JOIN promotion ON reservation.idPromotion = promotion.idPromotion WHERE reservation.idReservation =?"
     bdd.query(promotionsReservation, [req.params.id], (err, result) => {
         if(err) throw err;
@@ -121,7 +121,7 @@ router.get("/PromotionsReservation/:id", (req,res) => {
 
 // Récupérer les réservations associées à un utilisateur
 
-router.get("/ReservationsUtilisateur/:id", (req,res) => {
+router.get("/ReservationsUtilisateur/:id", authenticateToken,(req,res) => {
     const reservationsUtilisateur = "SELECT reservation.idReservation, reservation.dateEntree, reservation.dateSortie, emplacement.numero, emplacement.type, emplacement.tarif, emplacement.description, promotion.typePromo, promotion.contrainte, service.libelle, service.tarif FROM reservation JOIN Utilisateur ON reservation.idUtilisateur = Utilisateur.idUtilisateur JOIN emplacement ON reservation.idEmplacement = emplacement.idEmplacement LEFT JOIN promotion ON reservation.idPromotion = promotion.idPromotion LEFT JOIN serviceReservation ON reservation.idReservation = serviceReservation.idReservation LEFT JOIN service ON serviceReservation.idService = service.idService WHERE Utilisateur.idUtilisateur =?"
     bdd.query(reservationsUtilisateur, [req.params.id], (err, result) => {
         if(err) throw err;
@@ -131,7 +131,7 @@ router.get("/ReservationsUtilisateur/:id", (req,res) => {
 
 // Récupérer les réservations associées à un emplacement
 
-router.get("/ReservationsEmplacement/:id", (req,res) => {
+router.get("/ReservationsEmplacement/:id", authenticateToken,(req,res) => {
     const reservationsEmplacement = "SELECT reservation.idReservation, reservation.dateEntree, reservation.dateSortie, Utilisateur.nom, Utilisateur.prenom, Utilisateur.mail, promotion.typePromo, promotion.contrainte, service.libelle, service.tarif FROM reservation JOIN Utilisateur ON reservation.idUtilisateur = Utilisateur.idUtilisateur JOIN emplacement ON reservation.idEmplacement = emplacement.idEmplacement LEFT JOIN promotion ON reservation.idPromotion = promotion.idPromotion LEFT JOIN serviceReservation ON reservation.idReservation = serviceReservation.idReservation LEFT JOIN service ON serviceReservation.idService = service.idService WHERE emplacement.idEmplacement =?"
     bdd.query(reservationsEmplacement, [req.params.id], (err, result) => {
         if(err) throw err;
