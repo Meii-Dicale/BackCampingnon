@@ -46,10 +46,7 @@ router.post('/loginUser', async (req, res) => {
         // Répondre avec le token JWT
         return res.status(200).json({
           message: 'Connexion réussie',
-          token,
-          nom: user.nom,
-          prenom: user.prenom,
-          role: user.role,
+          token
         });
       } else {
         // Mot de passe incorrect
