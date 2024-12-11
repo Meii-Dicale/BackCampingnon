@@ -64,6 +64,7 @@ router.get('/AllInformationUtilisateur', authenticateToken, (req, res) => {
 // Ajouter un utilisateur
 router.post("/AjoutUtilisateur", async (req, res) => {
     const { nom, prenom, mail, mdp, role, rue, codePostal, ville, pays, tel, dateNaissance } = req.body;
+    console.log ( nom, prenom, mail, mdp, role, rue, codePostal, ville)
     const securedPassword = await bcrypt.hash(mdp, 10)
     // on vérifi d'abord si le mail existe déjà 
     const queryExisteMail = "SELECT * FROM utilisateur WHERE mail =?";
@@ -107,7 +108,7 @@ router.post("/AjoutUtilisateur", async (req, res) => {
 
 // suppression utilisateur
 
-router.delete("/utilisateur/:id", (req, res) => {
+router.delete("/utilisateur/:id", authenticateToken,(req, res) => {
     const { id } = req.params; // Récupérer l'ID de l'utilisateur à partir des paramètres de l'URL
 
     const query = "DELETE FROM utilisateur WHERE idUtilisateur = ?"; // La requête SQL
