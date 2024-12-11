@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const bdd = require('../config/bdd');
 const jwt = require("jsonwebtoken");
+const dotenv = require('dotenv');
+dotenv.config(); 
+const SECRET_KEY = process.env.SECRET_KEY ;
 
 ////////////////////////////////////////////////////////////////////////
 // L'authentication//
@@ -32,6 +35,8 @@ const authenticateToken = (req, res, next) => {
 // |             2 | Archive |
 // +---------------+---------+
 
+////////////////////////////////////////////////////////////////////////
+
 
 // Route pour récuéperer tout les messages 
 router.get ('/AllMessages', authenticateToken, (req, res) => {
@@ -42,7 +47,7 @@ router.get ('/AllMessages', authenticateToken, (req, res) => {
     })
     })
 // route pour récupérer tout les nouveaux messages
-router.get ('/NouveauxMessages',authenticateToken, (req, res) => {
+router.get ('/NouveauxMessages', (req, res) => {
     const newMessages = "select * from contact WHERE idEtatMessage = 1"
     bdd.query(newMessages, (err, result) => {
         if(err) throw err;

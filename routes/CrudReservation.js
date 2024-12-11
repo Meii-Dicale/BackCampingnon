@@ -1,10 +1,36 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
+const jwt = require("jsonwebtoken");
 const router = express.Router();
-const bdd = require('../config/bdd');
+const connexion = require("../config/bdd");
+const dotenv = require('dotenv');
+dotenv.config(); 
+const SECRET_KEY = process.env.SECRET_KEY ;
+
+////////////////////////////////////////////////////////////////////////
+// L'authentication//
+////////////////////////////////////////////////////////////////////////
+
+const authenticateToken = (req, res, next) => {
+    const token = req.header('Authorization')?.split(' ')[1];
+    console.log('token' + token);
+    if (!token) return res.status(401).json({ error: 'Token manquant' });
+
+    try {
+        const decoded = jwt.verify(token, SECRET_KEY);
+        req.user = decoded; // Stocke les données du token dans req.user
+        next();
+    } catch (err) {
+        res.status(403).json({ error: 'Token invalide' });
+        console.error(err);
+    }
+};
+
+////////////////////////////////////////////////////////////////////////
 
 // récupérer les réservation 
 
-router.get("/AllReservations", (req,res) => {
+router.get("/AllReservations", authenticateToken, (req,res) => {
     const allReservations = "SELECT reservation.idReservation, reservation.dateEntree, reservation.dateSortie, Utilisateur.nom, Utilisateur.prenom, Utilisateur.mail, emplacement.numero, emplacement.type, emplacement.tarif, emplacement.description, promotion.typePromo, promotion.contrainte, service.libelle, service.tarif FROM reservation JOIN Utilisateur ON reservation.idUtilisateur = Utilisateur.idUtilisateur JOIN emplacement ON reservation.idEmplacement = emplacement.idEmplacement LEFT JOIN promotion ON reservation.idPromotion = promotion.idPromotion LEFT JOIN serviceReservation ON reservation.idReservation = serviceReservation.idReservation LEFT JOIN service ON serviceReservation.idService = service.idService";
     bdd.query(allReservations, (err, result) => {
         if(err) throw err;
@@ -14,7 +40,7 @@ router.get("/AllReservations", (req,res) => {
 
 // Modifier une réservation 
 
-router.put("/UpdateReservation", (req,res) => {
+router.put("/UpdateReservation", authenticateToken, (req,res) => {
     const updateReservation = "UPDATE reservation SET dateEntree =?, dateSortie =?,  idEmplacement =?, idPromotion =? WHERE idReservation =?"
     bdd.query(updateReservation, [req.body.dateEntree, req.body.dateSortie, req.body.idEmplacement, req.body.idPromotion, req.body.idReservation], (err, result) => {
         if(err) throw err;
@@ -24,7 +50,7 @@ router.put("/UpdateReservation", (req,res) => {
 
 // Supprimer une réservation
 
-router.delete("/DeleteReservation/:id", (req,res) => {
+router.delete("/DeleteReservation/:id", authenticateToken, (req,res) => {
     const deleteReservation = "DELETE FROM reservation WHERE idReservation =?"
     bdd.query(deleteReservation, [req.params.id], (err, result) => {
         if(err) throw err;
@@ -34,7 +60,7 @@ router.delete("/DeleteReservation/:id", (req,res) => {
 
 // Ajouter une réservation
 
-router.post("/AddReservation", (req,res) => {
+router.post("/AddReservation",authenticateToken, (req,res) => {
     const addReservation = "INSERT INTO reservation (dateEntree, dateSortie, idUtilisateur, idEmplacement, idPromotion) VALUES (?,?,?,?,?)"
     bdd.query(addReservation, [req.body.dateEntree, req.body.dateSortie, req.body.idUtilisateur, req.body.idEmplacement, req.body.idPromotion], (err, result) => {
         if(err) throw err;
@@ -44,7 +70,7 @@ router.post("/AddReservation", (req,res) => {
 
 // récupérer les services réservés à une réservation
 
-router.get("/ServicesReservation/:id", (req,res) => {
+router.get("/ServicesReservation/:id", authenticateToken, (req,res) => {
     const servicesReservation = "SELECT service.libelle, service.tarif FROM serviceReservation JOIN service ON serviceReservation.idService = service.idService WHERE serviceReservation.idReservation =?"
     bdd.query(servicesReservation, [req.params.id], (err, result) => {
         if(err) throw err;
@@ -54,7 +80,7 @@ router.get("/ServicesReservation/:id", (req,res) => {
 
 // Ajouter un service à une réservation
 
-router.post("/AddServiceReservation", (req,res) => {
+router.post("/AddServiceReservation", authenticateToken, (req,res) => {
     const addServiceReservation = "INSERT INTO serviceReservation (idReservation, idService) VALUES (?,?)"
     bdd.query(addServiceReservation, [req.body.idReservation, req.body.idService], (err, result) => {
         if(err) throw err;
@@ -64,9 +90,10 @@ router.post("/AddServiceReservation", (req,res) => {
 
 // Supprimer un service à une réservation
 
-router.delete("/DeleteServiceReservation/:idReservation/:idService", (req,res) => {
+router.delete("/DeleteServiceReservation", authenticateToken, (req,res) => {
+    const data = {idReservation: req.body.idReservation, idService}
     const deleteServiceReservation = "DELETE FROM serviceReservation WHERE idReservation =? AND idService =?"
-    bdd.query(deleteServiceReservation, [req.params.idReservation, req.params.idService], (err, result) => {
+    bdd.query(deleteServiceReservation, [req.body.idReservation, req.body.idService], (err, result) => {
         if(err) throw err;
         res.json({message: 'Service supprimé de la réservation avec succès'});
     })
@@ -74,8 +101,8 @@ router.delete("/DeleteServiceReservation/:idReservation/:idService", (req,res) =
 
 // Récupérer les promotions en cours
 
-router.get("/PromotionsEnCours", (req,res) => {
-    const promotionsEnCours = "SELECT * FROM promotion WHERE dateDebut <= CURDATE() AND dateFin >= CURDATE()"
+router.get("/PromotionsEnCours",  (req,res) => {
+    const promotionsEnCours = "SELECT * FROM promotion"
     bdd.query(promotionsEnCours, (err, result) => {
         if(err) throw err;
         res.json(result);
