@@ -31,7 +31,7 @@ const authenticateToken = (req, res, next) => {
 // créer un service dans la table services
 
 router.post('/creerService', authenticateToken, (req, res) => {
-    const createService = "INSERT INTO services (libelle, tarif, stock) VALUES (?,?, ?)"
+    const createService = "INSERT INTO service (libelle, tarif, stock) VALUES (?,?, ?)"
     bdd.query(createService, [req.body.libelle, req.body.tarif, req.body.stock ], (err, result) => {
         if(err) throw err;
         res.json({message: 'Service créé avec succès'});
@@ -41,7 +41,7 @@ router.post('/creerService', authenticateToken, (req, res) => {
 // modifier un service dans la table services
 
 router.put('/modifierService', authenticateToken, (req, res) => {
-    const updateService = "UPDATE services SET libelle =?, tarif =?, stock =? WHERE idService =?"
+    const updateService = "UPDATE service SET libelle =?, tarif =?, stock =? WHERE idService =?"
     bdd.query(updateService, [req.body.libelle, req.body.tarif, req.body.stock, req.body.idService ], (err, result) => {
         if(err) throw err;
         res.json({message: 'Service modifié avec succès'});
@@ -51,7 +51,7 @@ router.put('/modifierService', authenticateToken, (req, res) => {
 // récupérer la liste de tout les services 
 
 router.get('/services', authenticateToken, (req, res) => {
-    const allServices = "SELECT * FROM services"
+    const allServices = "SELECT * FROM service"
     bdd.query(allServices, (err, result) => {
         if(err) throw err;
         res.json(result);
@@ -62,7 +62,7 @@ router.get('/services', authenticateToken, (req, res) => {
 // récupérer un service spécifique
 
 router.get('/service/:id', (req, res) => {
-    const oneService = "SELECT * FROM services WHERE idService =?"
+    const oneService = "SELECT * FROM service WHERE idService =?"
     bdd.query(oneService, [req.params.id], (err, result) => {
         if(err) throw err;
         res.json(result);
@@ -72,7 +72,7 @@ router.get('/service/:id', (req, res) => {
 // supprimer un service spécifique
 
 router.delete('/supprimerService/:id', authenticateToken, (req, res) => {
-    const deleteService = "DELETE FROM services WHERE idService =?"
+    const deleteService = "DELETE FROM service WHERE idService =?"
     bdd.query(deleteService, [req.params.id], (err, result) => {
         if(err) throw err;
         res.json({message: 'Service supprimé avec succès'});
@@ -81,20 +81,30 @@ router.delete('/supprimerService/:id', authenticateToken, (req, res) => {
 
 // récupérer les services réservés à un emplacement 
 
-router.get('/servicesEmplacement/:id', (req, res) => {
-    const servicesEmplacement = "SELECT emplacement.idEmplacement, emplacement.numero, emplacement.type, emplacement.tarif, emplacement.description, serviceAssocie.idService, service.libelle, service.tarif FROM emplacement LEFT JOIN serviceAssocie ON emplacement.idEmplacement = serviceAssocie.idEmplacement LEFT JOIN service ON serviceAssocie.idService = service.idService WHERE emplacement.idEmplacement = ? "
-    bdd.query(servicesEmplacement, [req.params.id], (err, result) => {
+router.get('/serviceEmplacement/:id', authenticateToken, (req, res) => {
+    const servicesEmplacement = "SELECT emplacement.idEmplacement, emplacement.numero, emplacement.type, emplacement.tarif, emplacement.description, serviceAssocie.idService, service.libelle, service.tarif FROM emplacement LEFT JOIN serviceAssocie ON emplacement.idEmplacement = serviceAssocie.idEmplacement LEFT JOIN service ON serviceAssocie.idService = service.idService where emplacement.idEmplacement = ?";
+    bdd.query(servicesEmplacement, [req.params.id], (err, result) => { // Utilisation de req.params.id
+        if (err) throw err;
+        res.json(result);
+    });
+});
+
+
+
+
+// récupérer les services lié à une réservation
+
+router.get('/servicesReservation/:id', authenticateToken, (req, res) => {
+    const servicesReservation = "SELECT service.libelle, service.tarif FROM serviceReservation JOIN service ON serviceReservation.idService = service.idService WHERE serviceReservation.idReservation =?"
+    bdd.query(servicesReservation, [req.params.id], (err, result) => {
         if(err) throw err;
         res.json(result);
     })
 })
 
-
-// récupérer les services lié à une réservation
-
-router.get('/servicesReservation/:id', (req, res) => {
-    const servicesReservation = "SELECT service.libelle, service.tarif FROM serviceReservation JOIN service ON serviceReservation.idService = service.idService WHERE serviceReservation.idReservation =?"
-    bdd.query(servicesReservation, [req.params.id], (err, result) => {
+router.get("/photoEmplacement/:id", authenticateToken , (req, res) => {
+    const photoEmplacement = "SELECT photoEmplacement.idPhoto, photoEmplacement.chemin FROM  photoEmplacement WHERE photoEmplacement.idEmplacement = ?"
+    bdd.query(photoEmplacement, [req.params.id], (err, result) => {
         if(err) throw err;
         res.json(result);
     })
