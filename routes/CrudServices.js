@@ -90,7 +90,25 @@ router.get('/serviceEmplacement/:id', authenticateToken, (req, res) => {
 });
 
 
+// associer un service à un emplacement 
 
+router.post('/associerServiceEmplacement', authenticateToken, (req, res) => {
+    const createAssociation = "INSERT INTO serviceAssocie (idEmplacement, idService) VALUES (?,?)"
+    const recherche = "select idService from serviceAssocie where idEmplacement= ?"
+
+    bdd.query(recherche, [req.body.idEmplacement], (err, result) => {
+        if(err) throw err;
+        console.log(result)
+        if (!result.includes(req.body.idService)){
+            bdd.query(createAssociation, [req.body.idEmplacement, req.body.idService ], (err, result) => {
+                if(err) throw err;
+                res.json({message: 'Association créée avec succès'});
+            })
+        } else {
+            res.json({message: 'Association déjà existante'});
+        }
+    })
+})
 
 // récupérer les services lié à une réservation
 
