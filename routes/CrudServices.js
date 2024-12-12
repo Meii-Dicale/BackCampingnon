@@ -81,16 +81,34 @@ router.delete('/supprimerService/:id', authenticateToken, (req, res) => {
 
 // récupérer les services réservés à un emplacement 
 
-router.get('/serviceEmplacement', authenticateToken,  (req, res) => {
-    const servicesEmplacement = "SELECT emplacement.idEmplacement, emplacement.numero, emplacement.type, emplacement.tarif, emplacement.description, serviceAssocie.idService, service.libelle, service.tarif FROM emplacement LEFT JOIN serviceAssocie ON emplacement.idEmplacement = serviceAssocie.idEmplacement LEFT JOIN service ON serviceAssocie.idService = service.idService where emplacement.idEmplacement = ?"
-    bdd.query(servicesEmplacement, [req.body.id], (err, result) => {
-        if(err) throw err;
+router.get('/serviceEmplacement/:id', authenticateToken, (req, res) => {
+    const servicesEmplacement = "SELECT emplacement.idEmplacement, emplacement.numero, emplacement.type, emplacement.tarif, emplacement.description, serviceAssocie.idService, service.libelle, service.tarif FROM emplacement LEFT JOIN serviceAssocie ON emplacement.idEmplacement = serviceAssocie.idEmplacement LEFT JOIN service ON serviceAssocie.idService = service.idService where emplacement.idEmplacement = ?";
+    bdd.query(servicesEmplacement, [req.params.id], (err, result) => { // Utilisation de req.params.id
+        if (err) throw err;
         res.json(result);
-    })
-      
-    })
+    });
+});
 
 
+// associer un service à un emplacement 
+
+router.post('/associerServiceEmplacement', authenticateToken, (req, res) => {
+    const createAssociation = "INSERT INTO serviceAssocie (idEmplacement, idService) VALUES (?,?)"
+    const recherche = "select idService from serviceAssocie where idEmplacement= ?"
+
+    bdd.query(recherche, [req.body.idEmplacement], (err, result) => {
+        if(err) throw err;
+        console.log(result)
+        if (!result.includes(req.body.idService)){
+            bdd.query(createAssociation, [req.body.idEmplacement, req.body.idService ], (err, result) => {
+                if(err) throw err;
+                res.json({message: 'Association créée avec succès'});
+            })
+        } else {
+            res.json({message: 'Association déjà existante'});
+        }
+    })
+})
 
 // récupérer les services lié à une réservation
 
@@ -102,9 +120,9 @@ router.get('/servicesReservation/:id', authenticateToken, (req, res) => {
     })
 })
 
-router.get("/photoEmplacement", authenticateToken , (req, res) => {
+router.get("/photoEmplacement/:id", authenticateToken , (req, res) => {
     const photoEmplacement = "SELECT photoEmplacement.idPhoto, photoEmplacement.chemin FROM  photoEmplacement WHERE photoEmplacement.idEmplacement = ?"
-    bdd.query(photoEmplacement, [req.body.id], (err, result) => {
+    bdd.query(photoEmplacement, [req.params.id], (err, result) => {
         if(err) throw err;
         res.json(result);
     })
