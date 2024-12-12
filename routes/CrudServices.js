@@ -81,14 +81,14 @@ router.delete('/supprimerService/:id', authenticateToken, (req, res) => {
 
 // récupérer les services réservés à un emplacement 
 
-router.get('/serviceEmplacement', authenticateToken,  (req, res) => {
-    const servicesEmplacement = "SELECT emplacement.idEmplacement, emplacement.numero, emplacement.type, emplacement.tarif, emplacement.description, serviceAssocie.idService, service.libelle, service.tarif FROM emplacement LEFT JOIN serviceAssocie ON emplacement.idEmplacement = serviceAssocie.idEmplacement LEFT JOIN service ON serviceAssocie.idService = service.idService where emplacement.idEmplacement = ?"
-    bdd.query(servicesEmplacement, [req.body.id], (err, result) => {
-        if(err) throw err;
+router.get('/serviceEmplacement/:id', authenticateToken, (req, res) => {
+    const servicesEmplacement = "SELECT emplacement.idEmplacement, emplacement.numero, emplacement.type, emplacement.tarif, emplacement.description, serviceAssocie.idService, service.libelle, service.tarif FROM emplacement LEFT JOIN serviceAssocie ON emplacement.idEmplacement = serviceAssocie.idEmplacement LEFT JOIN service ON serviceAssocie.idService = service.idService where emplacement.idEmplacement = ?";
+    bdd.query(servicesEmplacement, [req.params.id], (err, result) => { // Utilisation de req.params.id
+        if (err) throw err;
         res.json(result);
-    })
-      
-    })
+    });
+});
+
 
 
 
@@ -102,9 +102,9 @@ router.get('/servicesReservation/:id', authenticateToken, (req, res) => {
     })
 })
 
-router.get("/photoEmplacement", authenticateToken , (req, res) => {
+router.get("/photoEmplacement/:id", authenticateToken , (req, res) => {
     const photoEmplacement = "SELECT photoEmplacement.idPhoto, photoEmplacement.chemin FROM  photoEmplacement WHERE photoEmplacement.idEmplacement = ?"
-    bdd.query(photoEmplacement, [req.body.id], (err, result) => {
+    bdd.query(photoEmplacement, [req.params.id], (err, result) => {
         if(err) throw err;
         res.json(result);
     })
