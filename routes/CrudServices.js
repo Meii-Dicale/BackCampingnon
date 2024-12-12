@@ -82,7 +82,7 @@ router.delete('/supprimerService/:id', authenticateToken, (req, res) => {
 // récupérer les services réservés à un emplacement 
 
 router.get('/servicesEmplacement/:id', (req, res) => {
-    const servicesEmplacement = "SELECT service.libelle, service.tarif FROM serviceReservation JOIN service ON serviceReservation.idService = service.idService WHERE serviceReservation.idReservation =?"
+    const servicesEmplacement = "SELECT emplacement.idEmplacement, emplacement.numero, emplacement.type, emplacement.tarif, emplacement.description, serviceAssocie.idService, service.libelle, service.tarif FROM emplacement LEFT JOIN serviceAssocie ON emplacement.idEmplacement = serviceAssocie.idEmplacement LEFT JOIN service ON serviceAssocie.idService = service.idService WHERE emplacement.idEmplacement = ? "
     bdd.query(servicesEmplacement, [req.params.id], (err, result) => {
         if(err) throw err;
         res.json(result);
