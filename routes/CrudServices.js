@@ -31,7 +31,7 @@ const authenticateToken = (req, res, next) => {
 // créer un service dans la table services
 
 router.post('/creerService', authenticateToken, (req, res) => {
-    const createService = "INSERT INTO services (libelle, tarif, stock) VALUES (?,?, ?)"
+    const createService = "INSERT INTO service (libelle, tarif, stock) VALUES (?,?, ?)"
     bdd.query(createService, [req.body.libelle, req.body.tarif, req.body.stock ], (err, result) => {
         if(err) throw err;
         res.json({message: 'Service créé avec succès'});
@@ -41,7 +41,7 @@ router.post('/creerService', authenticateToken, (req, res) => {
 // modifier un service dans la table services
 
 router.put('/modifierService', authenticateToken, (req, res) => {
-    const updateService = "UPDATE services SET libelle =?, tarif =?, stock =? WHERE idService =?"
+    const updateService = "UPDATE service SET libelle =?, tarif =?, stock =? WHERE idService =?"
     bdd.query(updateService, [req.body.libelle, req.body.tarif, req.body.stock, req.body.idService ], (err, result) => {
         if(err) throw err;
         res.json({message: 'Service modifié avec succès'});
@@ -51,7 +51,7 @@ router.put('/modifierService', authenticateToken, (req, res) => {
 // récupérer la liste de tout les services 
 
 router.get('/services', authenticateToken, (req, res) => {
-    const allServices = "SELECT * FROM services"
+    const allServices = "SELECT * FROM service"
     bdd.query(allServices, (err, result) => {
         if(err) throw err;
         res.json(result);
@@ -62,7 +62,7 @@ router.get('/services', authenticateToken, (req, res) => {
 // récupérer un service spécifique
 
 router.get('/service/:id', (req, res) => {
-    const oneService = "SELECT * FROM services WHERE idService =?"
+    const oneService = "SELECT * FROM service WHERE idService =?"
     bdd.query(oneService, [req.params.id], (err, result) => {
         if(err) throw err;
         res.json(result);
@@ -72,7 +72,7 @@ router.get('/service/:id', (req, res) => {
 // supprimer un service spécifique
 
 router.delete('/supprimerService/:id', authenticateToken, (req, res) => {
-    const deleteService = "DELETE FROM services WHERE idService =?"
+    const deleteService = "DELETE FROM service WHERE idService =?"
     bdd.query(deleteService, [req.params.id], (err, result) => {
         if(err) throw err;
         res.json({message: 'Service supprimé avec succès'});
