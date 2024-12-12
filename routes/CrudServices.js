@@ -81,20 +81,30 @@ router.delete('/supprimerService/:id', authenticateToken, (req, res) => {
 
 // récupérer les services réservés à un emplacement 
 
-router.get('/servicesEmplacement/:id', (req, res) => {
-    const servicesEmplacement = "SELECT service.libelle, service.tarif FROM serviceReservation JOIN service ON serviceReservation.idService = service.idService WHERE serviceReservation.idReservation =?"
-    bdd.query(servicesEmplacement, [req.params.id], (err, result) => {
+router.get('/git', authenticateToken,  (req, res) => {
+    const servicesEmplacement = "SELECT emplacement.idEmplacement, emplacement.numero, emplacement.type, emplacement.tarif, emplacement.description, serviceAssocie.idService, service.libelle, service.tarif FROM emplacement LEFT JOIN serviceAssocie ON emplacement.idEmplacement = serviceAssocie.idEmplacement LEFT JOIN service ON serviceAssocie.idService = service.idService where emplacement.idEmplacement = ?"
+    bdd.query(servicesEmplacement, [req.body.id], (err, result) => {
+        if(err) throw err;
+        res.json(result);
+    })
+      
+    })
+
+
+
+// récupérer les services lié à une réservation
+
+router.get('/servicesReservation/:id', authenticateToken, (req, res) => {
+    const servicesReservation = "SELECT service.libelle, service.tarif FROM serviceReservation JOIN service ON serviceReservation.idService = service.idService WHERE serviceReservation.idReservation =?"
+    bdd.query(servicesReservation, [req.params.id], (err, result) => {
         if(err) throw err;
         res.json(result);
     })
 })
 
-
-// récupérer les services lié à une réservation
-
-router.get('/servicesReservation/:id', (req, res) => {
-    const servicesReservation = "SELECT service.libelle, service.tarif FROM serviceReservation JOIN service ON serviceReservation.idService = service.idService WHERE serviceReservation.idReservation =?"
-    bdd.query(servicesReservation, [req.params.id], (err, result) => {
+router.get("/photoEmplacement", authenticateToken , (req, res) => {
+    const photoEmplacement = "SELECT photoEmplacement.idPhoto, photoEmplacement.chemin FROM  photoEmplacement WHERE photoEmplacement.idEmplacement = ?"
+    bdd.query(photoEmplacement, [req.body.id], (err, result) => {
         if(err) throw err;
         res.json(result);
     })
