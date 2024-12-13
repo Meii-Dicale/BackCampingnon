@@ -7,6 +7,7 @@ const crudEmplacement = require('./routes/crudEmplacement');
 const loginroute = require("./routes/Login");
 const CrudService = require('./routes/CrudServices');
 const cors = require('cors');
+const path = require('path');
 
 
 app.use(cors({
@@ -19,7 +20,7 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], 
     allowedHeaders: ['Content-Type', 'Authorization'], 
   }));
-  
+
 app.use(express.json());
 
 app.use("/api/utilisateur", routeUtilisateur);
@@ -28,6 +29,8 @@ app.use("/api/contact", CrudContact);
 app.use("/api/reservations", CrudReservation);
 app.use("/api/login" , loginroute);
 app.use("/api/services", CrudService);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')), crudEmplacement);
+
 
 const PORT = 3001;
 
