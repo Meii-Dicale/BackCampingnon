@@ -3,8 +3,8 @@ const router = express.Router();
 const bdd = require('../config/bdd');
 const jwt = require("jsonwebtoken");
 const dotenv = require('dotenv');
-dotenv.config(); 
-const SECRET_KEY = process.env.SECRET_KEY ;
+dotenv.config();
+const SECRET_KEY = process.env.SECRET_KEY;
 
 ////////////////////////////////////////////////////////////////////////
 // L'authentication//
@@ -12,7 +12,7 @@ const SECRET_KEY = process.env.SECRET_KEY ;
 
 const authenticateToken = (req, res, next) => {
     const token = req.header('Authorization')?.split(' ')[1];
-    console.log('token' +token);
+    console.log('token' + token);
     if (!token) return res.status(401).json({ error: 'Token manquant' });
 
     try {
@@ -32,9 +32,9 @@ const authenticateToken = (req, res, next) => {
 
 router.post('/creerService', authenticateToken, (req, res) => {
     const createService = "INSERT INTO service (libelle, tarif, stock) VALUES (?,?, ?)"
-    bdd.query(createService, [req.body.libelle, req.body.tarif, req.body.stock ], (err, result) => {
-        if(err) throw err;
-        res.json({message: 'Service créé avec succès'});
+    bdd.query(createService, [req.body.libelle, req.body.tarif, req.body.stock], (err, result) => {
+        if (err) throw err;
+        res.json({ message: 'Service créé avec succès' });
     })
 })
 
@@ -42,18 +42,18 @@ router.post('/creerService', authenticateToken, (req, res) => {
 
 router.put('/modifierService', authenticateToken, (req, res) => {
     const updateService = "UPDATE service SET libelle =?, tarif =?, stock =? WHERE idService =?"
-    bdd.query(updateService, [req.body.libelle, req.body.tarif, req.body.stock, req.body.idService ], (err, result) => {
-        if(err) throw err;
-        res.json({message: 'Service modifié avec succès'});
+    bdd.query(updateService, [req.body.libelle, req.body.tarif, req.body.stock, req.body.idService], (err, result) => {
+        if (err) throw err;
+        res.json({ message: 'Service modifié avec succès' });
     })
 })
 
 // récupérer la liste de tout les services 
 
-router.get('/services', authenticateToken, (req, res) => {
+router.get('/services', (req, res) => {
     const allServices = "SELECT * FROM service"
     bdd.query(allServices, (err, result) => {
-        if(err) throw err;
+        if (err) throw err;
         res.json(result);
     })
 })
@@ -64,7 +64,7 @@ router.get('/services', authenticateToken, (req, res) => {
 router.get('/service/:id', (req, res) => {
     const oneService = "SELECT * FROM service WHERE idService =?"
     bdd.query(oneService, [req.params.id], (err, result) => {
-        if(err) throw err;
+        if (err) throw err;
         res.json(result);
     })
 })
@@ -74,8 +74,8 @@ router.get('/service/:id', (req, res) => {
 router.delete('/supprimerService/:id', authenticateToken, (req, res) => {
     const deleteService = "DELETE FROM service WHERE idService =?"
     bdd.query(deleteService, [req.params.id], (err, result) => {
-        if(err) throw err;
-        res.json({message: 'Service supprimé avec succès'});
+        if (err) throw err;
+        res.json({ message: 'Service supprimé avec succès' });
     })
 })
 
@@ -94,19 +94,35 @@ router.get('/serviceEmplacement/:id', authenticateToken, (req, res) => {
 
 router.post('/associerServiceEmplacement', authenticateToken, (req, res) => {
     const createAssociation = "INSERT INTO serviceAssocie (idEmplacement, idService) VALUES (?,?)"
-    const recherche = "select idService from serviceAssocie where idEmplacement= ?"
+    const recherche = "select idService from serviceAssocie where idEmplacement= ? and idService=?"
 
-    bdd.query(recherche, [req.body.idEmplacement], (err, result) => {
-        if(err) throw err;
-        console.log(result)
-        if (!result.includes(req.body.idService)){
-            bdd.query(createAssociation, [req.body.idEmplacement, req.body.idService ], (err, result) => {
-                if(err) throw err;
-                res.json({message: 'Association créée avec succès'});
+    bdd.query(recherche, [req.body.idEmplacement, req.body.idService], (err, result) => {
+        if (err) throw err;
+        
+        if (result) {
+            bdd.query(createAssociation, [req.body.idEmplacement, req.body.idService], (err, result) => {
+                if (err) throw err;
+                console.log(req.body.idEmplacement, req.body.idService)
+                res.json({ message: 'Association créée avec succès' });
+                
             })
         } else {
-            res.json({message: 'Association déjà existante'});
+            res.json({ message: 'Association déjà existante' });
+           
+
         }
+    })
+})
+
+// supprimer une association service à un emplacement
+
+router.delete('/supprimerAssociationServiceEmplacement/:idEmplacement', authenticateToken, (req, res) => {
+    const deleteAssociation = "DELETE FROM serviceAssocie WHERE idEmplacement =? "
+    bdd.query(deleteAssociation, [req.params.idEmplacement, req.params.idService], (err, result) => {
+        if (err) throw err;
+        res.json({ message: 'Association supprimée avec succès' });
+        console.log(result)
+
     })
 })
 
@@ -115,15 +131,15 @@ router.post('/associerServiceEmplacement', authenticateToken, (req, res) => {
 router.get('/servicesReservation/:id', authenticateToken, (req, res) => {
     const servicesReservation = "SELECT service.libelle, service.tarif FROM serviceReservation JOIN service ON serviceReservation.idService = service.idService WHERE serviceReservation.idReservation =?"
     bdd.query(servicesReservation, [req.params.id], (err, result) => {
-        if(err) throw err;
+        if (err) throw err;
         res.json(result);
     })
 })
 
-router.get("/photoEmplacement/:id", authenticateToken , (req, res) => {
+router.get("/photoEmplacement/:id", authenticateToken, (req, res) => {
     const photoEmplacement = "SELECT photoEmplacement.idPhoto, photoEmplacement.chemin FROM  photoEmplacement WHERE photoEmplacement.idEmplacement = ?"
     bdd.query(photoEmplacement, [req.params.id], (err, result) => {
-        if(err) throw err;
+        if (err) throw err;
         res.json(result);
     })
 })

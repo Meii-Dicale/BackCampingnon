@@ -14,7 +14,12 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], // Liste des méthodes autorisées
     allowedHeaders: ['Content-Type', 'Authorization'], // Liste des en-têtes autorisés
   }));
-
+  app.options('*', cors({ 
+    origin: 'http://localhost:5173', 
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], 
+    allowedHeaders: ['Content-Type', 'Authorization'], 
+  }));
+  
 app.use(express.json());
 
 app.use("/api/utilisateur", routeUtilisateur);
