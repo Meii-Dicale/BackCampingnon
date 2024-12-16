@@ -7,6 +7,7 @@ const crudEmplacement = require('./routes/crudEmplacement');
 const loginroute = require("./routes/Login");
 const CrudService = require('./routes/CrudServices');
 const cors = require('cors');
+const factureRoutes = require('./routes/Facture');
 
 
 app.use(cors({
@@ -23,6 +24,7 @@ app.use("/api/contact", CrudContact);
 app.use("/api/reservations", CrudReservation);
 app.use("/api/login" , loginroute);
 app.use("/api/services", CrudService);
+app.use('/api/factures', factureRoutes);
 
 const PORT = 3001;
 

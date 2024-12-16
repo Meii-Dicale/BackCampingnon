@@ -7,6 +7,8 @@ const dotenv = require('dotenv');
 dotenv.config();
 const SECRET_KEY = process.env.SECRET_KEY;
 
+
+
 router.post('/loginUser', async (req, res) => {
   try {
     console.log(req.body);
