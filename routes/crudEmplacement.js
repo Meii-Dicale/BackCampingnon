@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const dotenv = require('dotenv');
 dotenv.config(); 
 const SECRET_KEY = process.env.SECRET_KEY ;
+const multer = require('multer');
 
 ////////////////////////////////////////////////////////////////////////
 // L'authentication//
@@ -49,7 +50,7 @@ router.post('/add', authenticateToken, (req, res) => {
         .status(500)
         .json({ message: "Erreur lors de la création de l'emplacement" });
     }
-    results.status(200).send({
+    res.status(200).send({
       message: 'Emplacement créé avec succès',
     });
   });
@@ -137,6 +138,37 @@ router.get('/:id', async (req, res) => {
       res.json(results[0]); // on renvoie un objet contenant l'emplacement correspondant
     }
   );
+});
+
+// Configuration du stockage pour multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, `../Frontcampingnon/src/assets/${idEmplacement}`); // Dossier où les fichiers seront stockés
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + '-' + file.originalname);
+  },
+});
+const upload = multer({ storage: storage });
+
+router.post('/upload/:idEmplacement', upload.single('file'), (req, res) => {
+  const idEmplacement = req.params.idEmplacement;
+  const filePath = req.file ? req.file.path.replace(/\\/g, '/') : null;
+
+  if (!filePath) {
+    return res.status(400).json({ error: 'Aucun fichier fourni.' });
+  }
+
+  const sql = `INSERT INTO photoEmplacement (idEmplacement, chemin) VALUES (?, ?)`;
+  db.query(sql, [idEmplacement, filePath], (err, result) => {
+    if (err) {
+      console.error('Erreur lors de l\'insertion dans la base de données :', err);
+      return res.status(500).json({ error: 'Erreur lors de l\'insertion dans la base de données.' });
+    }
+
+    res.status(200).json({ message: 'Photo téléchargée avec succès.', chemin: filePath });
+  });
 });
 
 module.exports = router;
