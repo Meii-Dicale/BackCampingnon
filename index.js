@@ -35,7 +35,7 @@ app.use("/api/services", CrudService);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')), crudEmplacement);
 app.use('/api/finances', crudFinance)
 
-app.use('/api/factures', factureRoutes);
+app.use('/api/facture', factureRoutes);
 
 const PORT = 3001;
 
