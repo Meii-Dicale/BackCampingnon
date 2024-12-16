@@ -86,4 +86,14 @@ router.post ('/Archiver', authenticateToken, (req, res) => {
         res.json({message: 'Message archivé avec succès'});
     })})
 
+router.delete ('/supprimer/:idContact', authenticateToken, (req, res) =>{
+    const deleteMessage = "DELETE FROM contact WHERE idContact =?"
+    bdd.query(deleteMessage, [req.params.idContact], (err, result) => {
+        console.log(req.params.idContact)
+        if(err) throw err;
+        res.json({message: 'Message supprimé avec succès'});
+    })})
+
+
+
 module.exports = router
