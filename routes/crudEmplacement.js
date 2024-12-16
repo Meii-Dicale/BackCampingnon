@@ -50,7 +50,7 @@ router.post('/add', authenticateToken, (req, res) => {
         .status(500)
         .json({ message: "Erreur lors de la création de l'emplacement" });
     }
-    results.status(200).send({
+    res.status(200).send({
       message: 'Emplacement créé avec succès',
     });
   });
