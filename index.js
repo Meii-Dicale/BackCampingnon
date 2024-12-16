@@ -8,6 +8,9 @@ const loginroute = require("./routes/Login");
 const CrudService = require('./routes/CrudServices');
 const cors = require('cors');
 const path = require('path');
+const crudFinance = require('./routes/crudFinance');
+const factureRoutes = require('./routes/Facture');
+
 
 
 app.use(cors({
@@ -24,13 +27,15 @@ app.use(cors({
 app.use(express.json());
 
 app.use("/api/utilisateur", routeUtilisateur);
-app.use('/api/emplacement', crudEmplacement);
+app.use("/api/emplacement", crudEmplacement);
 app.use("/api/contact", CrudContact);
 app.use("/api/reservations", CrudReservation);
 app.use("/api/login" , loginroute);
 app.use("/api/services", CrudService);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')), crudEmplacement);
+app.use('/api/finances', crudFinance)
 
+app.use('/api/factures', factureRoutes);
 
 const PORT = 3001;
 

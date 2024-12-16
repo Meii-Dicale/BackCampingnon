@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const bdd = require('../config/bdd');
 const jwt = require("jsonwebtoken");
@@ -53,70 +53,82 @@ router.post('/add', authenticateToken, (req, res) => {
     res.status(200).send({
       message: 'Emplacement créé avec succès',
     });
-  });
+  } );
 });
 
-// Route pour la mise à jour d'un emplacement (patch)
-router.patch('/:id', authenticateToken,(req, res) => {
-  console.log('patch /api/emplacement/:id', req.body);
-  const id = req.params.id; // on récupère l'id(Emplacement) de l'emplacement dans l'URL
-  const champs = Object.keys(req.body) // on récupère les id du corps de la requête
-    .map((champ) => `${champ}=?`) // on récupère les noms qu'on 'variabilise' en listant par un mapping
-    .join(', '); // on les sépare par une virgule pour avoir le format de la requete SQL
-  let valeurs = Object.values(req.body); // on récupère les valeurs du corps de la requête
-  valeurs.push(id); // on ajoute l'id(Emplacement) à la liste des valeurs
-  const sqlQuery = `UPDATE emplacement SET ${champs} WHERE idEmplacement =?`;
-  bdd.query(sqlQuery, valeurs, (error, results) => {
-    if (error) {
-      console.error(error);
-      return res
-        .status(500)
-        .json({ message: "Erreur lors de la modification de l'emplacement" });
+// Route pour mettre à jour un emplacement
+router.patch('/:id', async (req, res) => {
+  console.log('PATCH /api/emplacement/:id', req.body);
+  try {
+    const id = req.params.id;
+    const champs = Object.keys(req.body).map((champ) => `${champ}=?`).join(', ');
+    let valeurs = [...Object.values(req.body), id];
+    console.log('Champs:', champs, 'Valeurs:', valeurs);
+
+    const sqlQuery = `UPDATE emplacement SET ${champs} WHERE idEmplacement =?`;
+    const response = await new Promise((resolve, reject) => {
+      bdd.query(sqlQuery, valeurs, (error, results) => {
+        if (error) return reject(error);
+        resolve(results);
+      });
+    });
+
+    if (response.affectedRows === 0) {
+      return res.status(404).send("Emplacement non trouvé");
     }
-    if (results.affectedRows === 0) {
-      // si aucun enregistrement n'a été modifié on remonte une erreur 404 'non trouvé'
-      return res.status(404).send('Emplacement non trouvé');
-    }
-    res.status(200).send({ message: 'Emplacement modifié avec succès.' });
-  }); // exécution de la requête SQL
+
+    res.status(200).send({
+      message: 'Emplacement modifié avec succès.',
+    });
+  } catch (error) {
+    console.error("Erreur lors de la modification de l'emplacement :", error.message);
+    res.status(500).send(error.message);
+  }
 });
 
-// Route pour la suppression d'un emplacement (delete)
-router.delete('/:id', authenticateToken, async (req, res) => {
-  console.log('DELETE /api/emplacement/:id'); // log de la requête sur la console
-  const { id } = req.params; // on récupère l'id(Emplacement) de l'emplacement dans l'URL
-  const sqlQuery = 'DELETE FROM emplacement WHERE idEmplacement =?'; // on crée la requête SQL
-  bdd.query(sqlQuery, id, (error, results) => {
-    if (error) {
-      console.error(error);
-      return res
-        .status(500)
-        .json({ message: "Erreur lors de la suppression de l'emplacement" });
-    }
+// Route pour supprimer un emplacement
+router.delete('/:id', async (req, res) => {
+  console.log('DELETE /api/emplacement/:id');
+  const { id } = req.params;
+  const sqlQuery = 'DELETE FROM emplacement WHERE idEmplacement =?';
+
+  try {
+    const results = await new Promise((resolve, reject) => {
+      bdd.query(sqlQuery, id, (error, results) => {
+        if (error) return reject(error);
+        resolve(results);
+      });
+    });
+
     if (results.affectedRows === 0) {
-      // si aucun enregistrement n'a été supprimé on remonte une erreur 404 'non trouvé'
-      return res.status(404).send('emplacement non trouvé');
+      return res.status(404).send("Emplacement non trouvé");
     }
-    res.status(200).send({ message: 'Emplacement supprimé avec succès.' }); // si tout s'est bien passé on renvoi une confirmation 200 avec un message de confirmation
-  }); // exécution de la requête SQL
+
+    res.status(200).send({ message: 'Emplacement supprimé avec succès.' });
+  } catch (error) {
+    console.error("Erreur lors de la suppression de l'emplacement :", error.message);
+    res.status(500).send(error.message);
+  }
 });
 
 // Route pour récupérer tous les emplacements
-router.get('/', (req, res) => {
-  console.log('GET /api/emplacement'); // log de la requête sur la console
-  bdd.query('SELECT * FROM emplacement', (error, results) => {
-    if (error) {
-      console.error(
-        'Erreur lors de la récupération des emplacements :',
-        error.message
-      );
-      res.status(500).send(error.message); // 'terrible désillusion!'
-    }
-    res.json(results); // on renvoie un objet contenant l'ensemble des emplacements
-  }); // exécution de la requête SQL
+router.get('/', async (req, res) => {
+  console.log('GET /api/emplacement');
+  try {
+    const results = await new Promise((resolve, reject) => {
+      bdd.query('SELECT * FROM emplacement', (error, results) => {
+        if (error) return reject(error);
+        resolve(results);
+      });
+    });
+    res.json(results);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des emplacements :", error.message);
+    res.status(500).send(error.message);
+  }
 });
 
-// Route pour récupérer un emplacement par son idEmplacement
+// Route pour récupérer un emplacement par son ID
 router.get('/:id', async (req, res) => {
   console.log('GET /api/emplacement/:id'); // log de la requête sur la console
   const { id } = req.params; // on récupère l'id(Emplacement) de l'emplacement dans l'URL
