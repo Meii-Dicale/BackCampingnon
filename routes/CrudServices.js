@@ -41,12 +41,23 @@ router.post('/creerService', authenticateToken, (req, res) => {
 // modifier un service dans la table services
 
 router.put('/modifierService', authenticateToken, (req, res) => {
-    const updateService = "UPDATE service SET libelle =?, tarif =?, stock =? WHERE idService =?"
-    bdd.query(updateService, [req.body.libelle, req.body.tarif, req.body.stock, req.body.idService], (err, result) => {
-        if (err) throw err;
+    const { libelle, tarif, stock, idService } = req.body;
+
+    // Vérifier que `stock` est cohérent
+    if (stock < 0) {
+        return res.status(400).json({ message: "Le stock ne peut pas être négatif." });
+    }
+
+    const updateService = "UPDATE service SET libelle = ?, tarif = ?, stock = ? WHERE idService = ?";
+    bdd.query(updateService, [libelle, tarif, stock, idService], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: "Erreur lors de la modification du service." });
+        }
         res.json({ message: 'Service modifié avec succès' });
-    })
-})
+    });
+});
+
 
 // récupérer la liste de tout les services 
 
@@ -104,7 +115,7 @@ router.post('/associerServiceEmplacement', authenticateToken, (req, res) => {
                 if (err) throw err;
                 console.log(req.body.idEmplacement, req.body.idService)
                 res.json({ message: 'Association créée avec succès' });
-                
+
             })
         } else {
             res.json({ message: 'Association déjà existante' });
