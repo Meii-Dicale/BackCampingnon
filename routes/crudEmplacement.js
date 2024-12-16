@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const dotenv = require('dotenv');
 dotenv.config(); 
 const SECRET_KEY = process.env.SECRET_KEY ;
+const multer = require('multer');
 
 ////////////////////////////////////////////////////////////////////////
 // L'authentication//
@@ -28,26 +29,31 @@ const authenticateToken = (req, res, next) => {
 ////////////////////////////////////////////////////////////////////////
 
 // Route pour ajouter un emplacement
-router.post('/add', async (req, res) => {
-  console.log('POST /api/emplacement', req.body);
-  try {
-    let valeurs = Object.values(req.body).map((valeur) => valeur.trim()); // Trim des espaces
-    console.log(valeurs);
-    const userQuery = 'INSERT INTO emplacement (numero, type, tarif, description) VALUES (?,?,?,?)';
-    const response = await new Promise((resolve, reject) => {
-      bdd.query(userQuery, valeurs, (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
-    res.status(201).send({
-      message: 'Emplacement créé avec succès',
-      idEmplacement: response.insertId,
-    });
-  } catch (error) {
-    console.error("Erreur lors de l'ajout de l'emplacement :", error.message);
-    res.status(500).send(error.message);
+router.post('/add', authenticateToken, (req, res) => {
+  console.log('post /api/emplacement', req.body); // on log les données reçues de la requête POST
+  const { numero, type, tarif, description } = req.body; // on récupère les données du corps de la requête
+  if (!numero || !type || !tarif || !description) {
+    return res.status(400).send('Tous les champs sont requis'); // renvoie une erreur 400 si tous les champs ne sont pas remplis
   }
+  const valeurs = [
+    parseInt(numero),
+    type.trim(),
+    parseFloat(tarif),
+    description.trim(),
+  ]; // on vérifie que les elements envoyés soient dans les bon formats pour la requête SQL
+  const sqlQuery =
+    'INSERT INTO emplacement (numero, type, tarif, description) VALUES (?,?,?,?)';
+  bdd.query(sqlQuery, valeurs, (error, results) => {
+    if (error) {
+      console.error("erreur lors de la création de l'emplacement", error); // 'terrible désillusion!'
+      return results
+        .status(500)
+        .json({ message: "Erreur lors de la création de l'emplacement" });
+    }
+    res.status(200).send({
+      message: 'Emplacement créé avec succès',
+    });
+  } );
 });
 
 // Route pour mettre à jour un emplacement
@@ -124,26 +130,57 @@ router.get('/', async (req, res) => {
 
 // Route pour récupérer un emplacement par son ID
 router.get('/:id', async (req, res) => {
-  console.log('GET /api/emplacement/:id');
-  const { id } = req.params;
+  console.log('GET /api/emplacement/:id'); // log de la requête sur la console
+  const { id } = req.params; // on récupère l'id(Emplacement) de l'emplacement dans l'URL
+  bdd.query(
+    'SELECT * FROM emplacement WHERE idEmplacement =?',
+    [id],
+    (error, results) => {
+      if (error) {
+        console.error(
+          "Erreur lors de la récupération de l'emplacement :",
+          error.message
+        );
+        res.status(500).send(error.message); // 'terrible désillusion!'
+      }
+      if (results.length === 0) {
+        // si aucun enregistrement n'a été trouvé on remonte une erreur 404 'non trouvé'
+        return res.status(404).send('Emplacement non trouvé');
+      }
+      res.json(results[0]); // on renvoie un objet contenant l'emplacement correspondant
+    }
+  );
+});
 
-  try {
-    const result = await new Promise((resolve, reject) => {
-      bdd.query('SELECT * FROM emplacement WHERE idEmplacement =?', [id], (error, results) => {
-        if (error) return reject(error);
-        resolve(results);
-      });
-    });
+// Configuration du stockage pour multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, `../Frontcampingnon/src/assets/${idEmplacement}`); // Dossier où les fichiers seront stockés
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + '-' + file.originalname);
+  },
+});
+const upload = multer({ storage: storage });
 
-    if (result.length === 0) {
-      return res.status(404).send('Emplacement non trouvé');
+router.post('/upload/:idEmplacement', upload.single('file'), (req, res) => {
+  const idEmplacement = req.params.idEmplacement;
+  const filePath = req.file ? req.file.path.replace(/\\/g, '/') : null;
+
+  if (!filePath) {
+    return res.status(400).json({ error: 'Aucun fichier fourni.' });
+  }
+
+  const sql = `INSERT INTO photoEmplacement (idEmplacement, chemin) VALUES (?, ?)`;
+  db.query(sql, [idEmplacement, filePath], (err, result) => {
+    if (err) {
+      console.error('Erreur lors de l\'insertion dans la base de données :', err);
+      return res.status(500).json({ error: 'Erreur lors de l\'insertion dans la base de données.' });
     }
 
-    res.json(result[0]);
-  } catch (error) {
-    console.error("Erreur lors de la récupération de l'emplacement :", error.message);
-    res.status(500).send(error.message);
-  }
+    res.status(200).json({ message: 'Photo téléchargée avec succès.', chemin: filePath });
+  });
 });
 
 module.exports = router;

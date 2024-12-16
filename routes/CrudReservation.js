@@ -31,7 +31,7 @@ const authenticateToken = (req, res, next) => {
 // récupérer les réservation 
 
 router.get("/AllReservations", authenticateToken, (req,res) => {
-    const allReservations = "SELECT reservation.idReservation, reservation.dateEntree, reservation.dateSortie, Utilisateur.nom, Utilisateur.prenom, Utilisateur.mail, emplacement.numero, emplacement.type, emplacement.tarif, emplacement.description, promotion.typePromo, promotion.contrainte, service.libelle, service.tarif FROM reservation JOIN Utilisateur ON reservation.idUtilisateur = Utilisateur.idUtilisateur JOIN emplacement ON reservation.idEmplacement = emplacement.idEmplacement LEFT JOIN promotion ON reservation.idPromotion = promotion.idPromotion LEFT JOIN serviceReservation ON reservation.idReservation = serviceReservation.idReservation LEFT JOIN service ON serviceReservation.idService = service.idService";
+    const allReservations = "SELECT reservation.validation, reservation.idReservation, reservation.dateEntree, reservation.dateSortie, Utilisateur.nom, Utilisateur.prenom, Utilisateur.mail, emplacement.numero, emplacement.type, emplacement.tarif, emplacement.description, promotion.typePromo, promotion.contrainte, service.libelle, service.tarif FROM reservation JOIN Utilisateur ON reservation.idUtilisateur = Utilisateur.idUtilisateur JOIN emplacement ON reservation.idEmplacement = emplacement.idEmplacement LEFT JOIN promotion ON reservation.idPromotion = promotion.idPromotion LEFT JOIN serviceReservation ON reservation.idReservation = serviceReservation.idReservation LEFT JOIN service ON serviceReservation.idService = service.idService";
     bdd.query(allReservations, (err, result) => {
         if(err) throw err;
         res.json(result);
@@ -138,6 +138,17 @@ router.get("/ReservationsEmplacement/:id", authenticateToken,(req,res) => {
         res.json(result);
     })
 });
+
+// Valider une reservation 
+
+router.put("/ValiderReservation/:id", authenticateToken, (req,res) => {
+    const validerReservation = "UPDATE reservation SET validation =1 WHERE idReservation =?"
+    bdd.query(validerReservation, [req.params.id], (err, result) => {
+        console.log(req.params.id);
+        if(err) throw err;
+        res.json({message: 'Réservation validée avec succès'});
+    })
+})
 
 
 module.exports = router;

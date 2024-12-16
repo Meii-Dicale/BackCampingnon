@@ -40,6 +40,7 @@ router.post('/loginUser', async (req, res) => {
           nom: user.nom,
           prenom: user.prenom,
           role: user.role,
+          idUtilisateur: user.idUtilisateur
         };
 
         // Générer le JWT
