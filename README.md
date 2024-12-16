@@ -95,6 +95,10 @@ CREATE TABLE serviceReservation (
 );
 
 ALTER TABLE  service ADD COLUMN stock int null;
+ALTER TABLE reservation ADD COLUMN validation BOOLEAN NOT NULL;
+
+-- Création de la table photoEmplacement
+CREATE TABLE photoEmplacement (     idPhoto INT PRIMARY KEY AUTO_INCREMENT,     idEmplacement INT NOT NULL,     chemin VARCHAR(255) NOT NULL,     CONSTRAINT fk_photoEmplacement FOREIGN KEY (idEmplacement) REFERENCES emplacement(idEmplacement) ON DELETE CASCADE );
 
 
 
