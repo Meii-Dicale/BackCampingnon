@@ -31,13 +31,21 @@ const authenticateToken = (req, res, next) => {
 // récupérer les réservation 
 
 router.get("/AllReservations", authenticateToken, (req,res) => {
-    const allReservations = "SELECT reservation.validation, reservation.idReservation, reservation.dateEntree, reservation.dateSortie, Utilisateur.nom, Utilisateur.prenom, Utilisateur.mail, emplacement.numero, emplacement.type, emplacement.tarif, emplacement.description, promotion.typePromo, promotion.contrainte, service.libelle, service.tarif FROM reservation JOIN Utilisateur ON reservation.idUtilisateur = Utilisateur.idUtilisateur JOIN emplacement ON reservation.idEmplacement = emplacement.idEmplacement LEFT JOIN promotion ON reservation.idPromotion = promotion.idPromotion LEFT JOIN serviceReservation ON reservation.idReservation = serviceReservation.idReservation LEFT JOIN service ON serviceReservation.idService = service.idService";
+    const allReservations = "SELECT reservation.validation, reservation.idReservation, reservation.dateEntree, reservation.dateSortie, Utilisateur.nom, Utilisateur.prenom, Utilisateur.mail, emplacement.numero, emplacement.type, emplacement.tarif as tarifEmplacement, emplacement.description, promotion.typePromo, promotion.contrainte, service.libelle, service.tarif FROM reservation JOIN Utilisateur ON reservation.idUtilisateur = Utilisateur.idUtilisateur JOIN emplacement ON reservation.idEmplacement = emplacement.idEmplacement LEFT JOIN promotion ON reservation.idPromotion = promotion.idPromotion LEFT JOIN serviceReservation ON reservation.idReservation = serviceReservation.idReservation LEFT JOIN service ON serviceReservation.idService = service.idService";
     bdd.query(allReservations, (err, result) => {
         if(err) throw err;
         res.json(result);
     })
 })
 
+// Récupérer une reservation en particulier 
+router.get("/:idReservation", authenticateToken, (req,res) => {
+    const allReservations = "SELECT reservation.validation, reservation.idReservation, reservation.dateEntree, reservation.dateSortie, Utilisateur.nom, Utilisateur.prenom, Utilisateur.mail, emplacement.numero, emplacement.type, emplacement.tarif as tarifEmplacement, emplacement.description, promotion.typePromo, promotion.contrainte, service.libelle, service.tarif FROM reservation JOIN Utilisateur ON reservation.idUtilisateur = Utilisateur.idUtilisateur JOIN emplacement ON reservation.idEmplacement = emplacement.idEmplacement LEFT JOIN promotion ON reservation.idPromotion = promotion.idPromotion LEFT JOIN serviceReservation ON reservation.idReservation = serviceReservation.idReservation LEFT JOIN service ON serviceReservation.idService = service.idService WHERE reservation.idReservation = ?";
+    bdd.query(allReservations, [req.params.idReservation], (err, result) => {
+        if(err) throw err;
+        res.json(result);
+    })
+})
 // Modifier une réservation 
 
 router.put("/UpdateReservation", authenticateToken, (req,res) => {
