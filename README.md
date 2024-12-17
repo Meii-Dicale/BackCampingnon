@@ -100,7 +100,25 @@ ALTER TABLE reservation ADD COLUMN validation BOOLEAN NOT NULL;
 -- Création de la table photoEmplacement
 CREATE TABLE photoEmplacement (     idPhoto INT PRIMARY KEY AUTO_INCREMENT,     idEmplacement INT NOT NULL,     chemin VARCHAR(255) NOT NULL,     CONSTRAINT fk_photoEmplacement FOREIGN KEY (idEmplacement) REFERENCES emplacement(idEmplacement) ON DELETE CASCADE );
 
-
+CREATE TABLE factures (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  utilisateur_id int(11) DEFAULT NULL,
+  date_facture datetime DEFAULT NULL,
+  total decimal(10,2) DEFAULT NULL,
+  PRIMARY KEY (id),
+  KEY fk_factures_utilisateur (utilisateur_id),
+  CONSTRAINT factures_ibfk_1 FOREIGN KEY (utilisateur_id) REFERENCES utilisateur (idUtilisateur)
+)
+CREATE TABLE articles_factures (
+  facture_id int(11) NOT NULL,
+  service_id int(11) NOT NULL,
+  quantite int(11) DEFAULT NULL,
+  prix decimal(10,2) DEFAULT NULL,
+  PRIMARY KEY (facture_id,service_id),
+  KEY service_id (service_id),
+  CONSTRAINT articles_factures_ibfk_1 FOREIGN KEY (facture_id) REFERENCES factures (id),
+  CONSTRAINT articles_factures_ibfk_2 FOREIGN KEY (service_id) REFERENCES service (idService)
+)
 
 -- Insertion de données de test 
 
