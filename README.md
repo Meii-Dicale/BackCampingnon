@@ -56,11 +56,10 @@ CREATE TABLE service (
 CREATE TABLE promotion (
     idPromotion INT PRIMARY KEY AUTO_INCREMENT, 
     idService INT NULL,
-    idEmplacement INT NULL, 
+    typesEmplacement VARCHAR(50) NULL, 
     typePromo VARCHAR(50),
     contrainte INT NULL,
     CONSTRAINT fk_promotion_service FOREIGN KEY (idService) REFERENCES service(idService) ON DELETE SET NULL,
-    CONSTRAINT fk_promotion_emplacement FOREIGN KEY (idEmplacement) REFERENCES emplacement(idEmplacement) ON DELETE SET NULL
 );
 
 -- Création de la table reservation
@@ -109,6 +108,7 @@ CREATE TABLE factures (
   KEY fk_factures_utilisateur (utilisateur_id),
   CONSTRAINT factures_ibfk_1 FOREIGN KEY (utilisateur_id) REFERENCES utilisateur (idUtilisateur)
 );
+
 CREATE TABLE articles_factures (
   facture_id int(11) NOT NULL,
   service_id int(11) NOT NULL,
