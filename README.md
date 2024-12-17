@@ -108,7 +108,7 @@ CREATE TABLE factures (
   PRIMARY KEY (id),
   KEY fk_factures_utilisateur (utilisateur_id),
   CONSTRAINT factures_ibfk_1 FOREIGN KEY (utilisateur_id) REFERENCES utilisateur (idUtilisateur)
-)
+);
 CREATE TABLE articles_factures (
   facture_id int(11) NOT NULL,
   service_id int(11) NOT NULL,
@@ -118,7 +118,7 @@ CREATE TABLE articles_factures (
   KEY service_id (service_id),
   CONSTRAINT articles_factures_ibfk_1 FOREIGN KEY (facture_id) REFERENCES factures (id),
   CONSTRAINT articles_factures_ibfk_2 FOREIGN KEY (service_id) REFERENCES service (idService)
-)
+);
 
 -- Insertion de données de test 
 
