@@ -72,6 +72,7 @@ router.post("/AjoutUtilisateur", async (req, res) => {
         if (err) throw err;
         if (resultExisteMail.length > 0) {
             return res.status(400).json({ message: "Cet email existe déjà." });
+            
         } else {
 
             // Vérification basique des champs requis
