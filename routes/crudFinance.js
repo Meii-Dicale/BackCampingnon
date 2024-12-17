@@ -32,7 +32,7 @@ const authenticateToken = (req, res, next) => {
 // API pour obtenir le nombre total de réservations à une date donnée
 router.get('/reservations/:date', authenticateToken, (req, res) => {
   const date = req.params.date;
-  const query = `SELECT COUNT(*)
+  const query = `SELECT COUNT(*) as reservations
                  FROM reservation
                  WHERE dateEntree <= ? AND dateSortie >= ?`;
   bdd.query(query, [date, date], (err, results) => {
@@ -43,7 +43,7 @@ router.get('/reservations/:date', authenticateToken, (req, res) => {
 
 // API pour obtenir le nombre total d'emplacements
 router.get('/emplacements',authenticateToken ,(req, res) => {
-  const query = 'SELECT COUNT(*) FROM emplacement';
+  const query = 'SELECT COUNT(*) AS Emplacements FROM emplacement';
   bdd.query(query, (err, results) => {
     if (err) throw err;
     res.json(results[0]);
