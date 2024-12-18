@@ -140,7 +140,7 @@ create trigger before_user_delete
     -> where u.idUtilisateur = OLD.idUtilisateur;
     -> END$$
 
-    ALTER TABLE historique
+ALTER TABLE historique
 ADD COLUMN nom VARCHAR(50) DEFAULT NULL,
 ADD COLUMN prenom VARCHAR(50) DEFAULT NULL;
 
