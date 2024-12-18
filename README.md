@@ -120,6 +120,12 @@ CREATE TABLE articles_factures (
   CONSTRAINT articles_factures_ibfk_2 FOREIGN KEY (service_id) REFERENCES service (idService)
 );
 
+ALTER TABLE historique DROP FOREIGN KEY fk_historique_utilisateur;
+ALTER TABLE historique DROP INDEX fk_historique_utilisateur;
+ALTER TABLE promotion DROP FOREIGN KEY fk_promotion_emplacement;
+ALTER TABLE promotion DROP COLUMN idEmplacement;
+ALTER TABLE promotion ADD COLUMN type VARCHAR(50) NULL;
+
 -- Insertion de données de test 
 
 -- Table etatMessage
