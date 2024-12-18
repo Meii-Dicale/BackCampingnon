@@ -5,7 +5,7 @@ const bdd = require('../config/bdd');
 // récupérer la liste des promos
 router.get('/toutes/', (req, res) => {
   console.log('GET /api/Promotions/toutes/'); // log de la requête sur la console
-  bdd.query('SELECT * FROM promotion', (error, results) => {
+  bdd.query('SELECT promotion.idPromotion, promotion.idService, promotion.typePromo, promotion.contrainte, promotion.type, service.libelle FROM promotion JOIN service ON promotion.idService = service.idService', (error, results) => {
     if (error) {
       console.error(
         'Erreur lors de la récupération des promotions :',
@@ -84,10 +84,10 @@ router.get('/:idPromotion', (req, res) => {
 
 // ajouter une nouvelle promo
 router.post('/add', (req, res) => {
-  const { idService, idEmplacement, typePromo, contrainte } = req.body;
+  const { idService, type, typePromo, contrainte } = req.body;
   const sqlQuery =
-    'INSERT INTO promotion ( idService, idEmplacement, typePromo, contrainte) VALUES (?,?,?,?)'; // requête SQL
-  const values = [idService, idEmplacement, typePromo, contrainte]; // valeurs pour la requête SQL
+    'INSERT INTO promotion ( idService, type, typePromo, contrainte) VALUES (?,?,?,?)'; // requête SQL
+  const values = [idService, type, typePromo, contrainte]; // valeurs pour la requête SQL
   values.forEach((value, index) => {
     if (value === undefined) {
       values[index] = null;

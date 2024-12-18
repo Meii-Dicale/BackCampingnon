@@ -10,6 +10,11 @@ const cors = require('cors');
 const path = require('path');
 const crudFinance = require('./routes/crudFinance');
 const factureRoutes = require('./routes/Facture');
+const crudPromotions = require('./routes/CrudPromotion');
+
+const EventEmitter = require('events');
+EventEmitter.defaultMaxListeners = 20; // Ajustez le nombre en fonction de vos besoins
+
 
 
 
@@ -34,6 +39,7 @@ app.use("/api/login" , loginroute);
 app.use("/api/services", CrudService);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')), crudEmplacement);
 app.use('/api/finances', crudFinance)
+app.use('/api/promotion', crudPromotions)
 
 app.use('/api/facture', factureRoutes);
 
