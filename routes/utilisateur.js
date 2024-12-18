@@ -146,7 +146,6 @@ router.put("/utilisateur/:id", authenticateToken, (req, res) => {
         tel,
         mail,
         dateNaissance,
-        mdp,
         role,
     } = req.body; // Récupérer les nouvelles valeurs depuis le corps de la requête
 
@@ -162,7 +161,6 @@ router.put("/utilisateur/:id", authenticateToken, (req, res) => {
             tel = ?, 
             mail = ?, 
             dateNaissance = ?, 
-            mdp = ?, 
             role = ?
         WHERE idUtilisateur = ?`; // La requête SQL pour mettre à jour les informations
 
@@ -179,7 +177,6 @@ router.put("/utilisateur/:id", authenticateToken, (req, res) => {
             tel,
             mail,
             dateNaissance,
-            mdp,
             role,
             id,
         ],
