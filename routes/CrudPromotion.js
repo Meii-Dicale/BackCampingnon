@@ -85,23 +85,48 @@ router.get('/:idPromotion', (req, res) => {
 // ajouter une nouvelle promo
 router.post('/add', (req, res) => {
   const { idService, type, typePromo, contrainte } = req.body;
-  const sqlQuery =
-    'INSERT INTO promotion ( idService, type, typePromo, contrainte) VALUES (?,?,?,?)'; // requête SQL
-  const values = [idService, type, typePromo, contrainte]; // valeurs pour la requête SQL
-  values.forEach((value, index) => {
-    if (value === undefined) {
-      values[index] = null;
+
+  // Requête SQL pour vérifier si la promotion existe déjà
+  const checkQuery = `
+    SELECT * 
+    FROM promotion 
+    WHERE idService = ? AND type = ? AND typePromo = ? AND contrainte = ?
+  `;
+  const checkValues = [idService, type, typePromo, contrainte];
+
+  bdd.query(checkQuery, checkValues, (checkError, checkResults) => {
+    if (checkError) {
+      console.error("Erreur lors de la vérification de l'existence de la promotion :", checkError.message);
+      return res.status(500).send(checkError.message);
     }
-  }); // si une valeur est undefined, on la met à null pour la requête SQL.
-  console.log(sqlQuery, values); // log de la requête sur la console pour vérification.
-  bdd.query(sqlQuery, values, (error, results) => {
-    if (error) {
-      console.error("Erreur lors de l'ajout de la promotion :", error.message);
-      res.status(500).send(error.message); // 'terrible désillusion!'
+
+    if (checkResults.length > 0) {
+      // Si une promotion existe déjà
+      return res.status(409).send("Cette promotion existe déjà.");
     }
-    res.status(200).send('Promotion ajoutée avec succès'); // 'créé!'
+
+    // Si la promotion n'existe pas, on l'ajoute
+    const insertQuery = `
+      INSERT INTO promotion (idService, type, typePromo, contrainte) 
+      VALUES (?, ?, ?, ?)
+    `;
+    const insertValues = [idService, type, typePromo, contrainte];
+    insertValues.forEach((value, index) => {
+      if (value === undefined) {
+        insertValues[index] = null;
+      }
+    });
+
+    bdd.query(insertQuery, insertValues, (insertError, insertResults) => {
+      if (insertError) {
+        console.error("Erreur lors de l'ajout de la promotion :", insertError.message);
+        return res.status(500).send(insertError.message);
+      }
+      res.status(200).send("Promotion ajoutée avec succès");
+    });
   });
 });
+
 // modifier une promo
 router.patch('/:idPromotion', (req, res) => {
   console.log('patch /api/promotions/:idPromo'); // log de la requête sur la console
