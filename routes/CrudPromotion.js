@@ -5,7 +5,7 @@ const bdd = require('../config/bdd');
 // récupérer la liste des promos
 router.get('/toutes/', (req, res) => {
   console.log('GET /api/Promotions/toutes/'); // log de la requête sur la console
-  bdd.query('SELECT promotion.idPromotion, promotion.idService, promotion.typePromo, promotion.contrainte, promotion.type, service.libelle FROM promotion JOIN service ON promotion.idService = service.idService', (error, results) => {
+  bdd.query('SELECT promotion.libelle as promolibelle, promotion.idPromotion, promotion.idService, promotion.typePromo, promotion.contrainte, promotion.type, service.libelle FROM promotion JOIN service ON promotion.idService = service.idService', (error, results) => {
     if (error) {
       console.error(
         'Erreur lors de la récupération des promotions :',
@@ -59,7 +59,7 @@ router.get('/:idPromotion', (req, res) => {
 
 // ajouter une nouvelle promo
 router.post('/add', (req, res) => {
-  const { idService, type, typePromo, contrainte } = req.body;
+  const { idService, type, typePromo, contrainte, libelle } = req.body;
 
   // Requête SQL pour vérifier si la promotion existe déjà
   const checkQuery = `
@@ -82,10 +82,10 @@ router.post('/add', (req, res) => {
 
     // Si la promotion n'existe pas, on l'ajoute
     const insertQuery = `
-      INSERT INTO promotion (idService, type, typePromo, contrainte) 
-      VALUES (?, ?, ?, ?)
+      INSERT INTO promotion (idService, type, typePromo, contrainte, libelle) 
+      VALUES (?, ?, ?, ?, ?)
     `;
-    const insertValues = [idService, type, typePromo, contrainte];
+    const insertValues = [idService, type, typePromo, contrainte, libelle];
     insertValues.forEach((value, index) => {
       if (value === undefined) {
         insertValues[index] = null;
