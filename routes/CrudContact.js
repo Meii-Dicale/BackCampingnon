@@ -67,7 +67,7 @@ router.get ('/MessagesArchives',authenticateToken, (req, res) => {
 
 // route pour créer un message 
 
-router.post ('/EnvoiMessages', authenticateToken, (req, res) => {
+router.post ('/EnvoiMessages', (req, res) => {
     console.log("test")
     const postMessage = "insert into contact (nom, mail, message, idEtatMessage) values (?,?,?,1)"
     bdd.query(postMessage, [req.body.nom, req.body.mail, req.body.message], (err, result) => {

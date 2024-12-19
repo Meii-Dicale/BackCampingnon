@@ -33,7 +33,7 @@ router.post('/upload', upload.single("file"), (req, res) => {
   const targetPath = path.join(__dirname, "../images/", newFileName);
 
   // Vérifier que l'extension est valide
-  if (fileExtension === ".png" || fileExtension === ".jpg") {
+  if (fileExtension === ".png" || fileExtension === ".jpg" || fileExtension === ".jpeg")  {
     // Renommer et déplacer le fichier
     fs.rename(tempPath, targetPath, (err) => {
       if (err) {
