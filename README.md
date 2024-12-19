@@ -126,6 +126,24 @@ ALTER TABLE promotion DROP FOREIGN KEY fk_promotion_emplacement;
 ALTER TABLE promotion DROP COLUMN idEmplacement;
 ALTER TABLE promotion ADD COLUMN type VARCHAR(50) NULL;
 
+ALTER TABLE reservation MODIFY dateEntree DATETIME, MODIFY dateSortie DATETIME;
+
+DELIMITER $$
+create trigger before_user_delete
+    -> before delete on utilisateur
+    -> for each row
+    -> begin
+    -> insert into historique (nom, prenom, date_facture, total)
+    -> select u.nom, u.prenom, f.date_facture, f.total
+    -> from factures f
+    -> join utilisateur u on f.utilisateur_id = u.idUtilisateur
+    -> where u.idUtilisateur = OLD.idUtilisateur;
+    -> END$$
+
+ALTER TABLE historique
+ADD COLUMN nom VARCHAR(50) DEFAULT NULL,
+ADD COLUMN prenom VARCHAR(50) DEFAULT NULL;
+
 -- Insertion de données de test 
 
 -- Table etatMessage
