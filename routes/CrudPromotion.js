@@ -41,31 +41,6 @@ router.get('/parService/:idService?', (req, res) => {
   });
 });
 
-// récupérer les promos correspondant  un idEmplacement
-router.get('/parEmplacement/:idEmplacement?', (req, res) => {
-  // le point d'interrogation est ajouté pour le cas d'un idEmplacement vide
-  let sqlQuery = 'SELECT * FROM promotion WHERE idEmplacement =?'; // requête SQL
-  const id =
-    req.params.idEmplacement === undefined ? null : req.params.idEmplacement; // valeur du paramètre, si idEmplacement est vide, alors on utilise null pour la requête SQL.
-  if (id === null) {
-    sqlQuery = 'SELECT * FROM promotion WHERE idEmplacement IS NULL'; // requête spécifique pour le cas où l'id demandé est null
-  }
-  console.log(sqlQuery, id);
-  bdd.query(sqlQuery, id, (error, results) => {
-    if (error) {
-      console.error(
-        "Erreur lors de la récupération des promotions pour l'emplacement :",
-        id
-      );
-      res.status(500).send(error.message); // 'terrible désillusion!'
-    }
-    if (results.length === 0) {
-      res.status(404).send('Aucune promotion trouvée pour cet emplacement'); // 'pas trouvé!'
-    }
-    res.json(results); // on renvoie un objet contenant la promotion correspondante
-  });
-});
-
 // récupérer une promo d'après son id
 router.get('/:idPromotion', (req, res) => {
   const sqlQuery = 'SELECT * FROM promotion WHERE idPromotion =?'; // requête SQL
